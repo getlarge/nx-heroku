@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "name": "nx-heroku",
+  "version": "0.0.1",
+  "generators": {
+    "nx-heroku": {
+      "factory": "./src/generators/nx-heroku/generator",
+      "schema": "./src/generators/nx-heroku/schema.json",
+      "description": "nx-heroku generator"
+    }
+  }
+}
