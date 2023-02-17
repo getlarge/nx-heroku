@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "type": "object",
+  "properties": {
+    "config": {
+      "type": "string",
+      "enum": ["development", "staging", "production"],
+      "description": "Name of the project environment (development, staging, production)",
+      "default": "development"
+    },
+    "apiKey": {
+      "description": "This will be used for authentication on Heroku. You can find it in your heroku homepage account settings",
+      "default": "${HEROKU_API_KEY}"
+    },
+    "email": {
+      "description": "Email that you use to authenticate on Heroku",
+      "default": "${HEROKU_EMAIL}"
+    },
+    "appNamePrefix": {
+      "description": "Heroku app name prefix",
+      "example": "s1seven",
+      "default": "s1"
+    },
+    "verbose": {
+      "type": "boolean"
+    }
+  },
+  "required": ["config", "apiKey", "email", "appNamePrefix"]
+}
