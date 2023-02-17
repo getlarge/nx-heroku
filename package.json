@@ -16,6 +16,7 @@
     "@swc/cli": "~0.1.55",
     "@swc/core": "^1.2.173",
     "@types/jest": "28.1.1",
+    "@types/lodash": "^4.14.191",
     "@types/node": "16.11.7",
     "@typescript-eslint/eslint-plugin": "^5.36.1",
     "@typescript-eslint/parser": "^5.36.1",
@@ -32,6 +33,10 @@
   },
   "dependencies": {
     "@swc/helpers": "~0.4.11",
+    "class-validator": "^0.14.0",
+    "dotenv-expand": "^10.0.0",
+    "lodash": "^4.17.21",
+    "reflect-metadata": "^0.1.13",
     "tslib": "^2.3.0"
   }
 }
