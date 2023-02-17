@@ -1,5 +1,6 @@
 export interface NxHerokuGeneratorSchema {
-  name: string;
-  tags?: string;
-  directory?: string;
+  projectName: string;
+  appNamePrefix?: string;
+  repositoryName?: string;
+  org?: string;
 }

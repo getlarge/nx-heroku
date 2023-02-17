@@ -1,73 +1,59 @@
 import {
-  addProjectConfiguration,
-  formatFiles,
-  generateFiles,
-  getWorkspaceLayout,
-  names,
-  offsetFromRoot,
+  getProjects,
+  TargetConfiguration,
   Tree,
+  updateProjectConfiguration,
 } from '@nrwl/devkit';
-import * as path from 'path';
 import { NxHerokuGeneratorSchema } from './schema';
 
-interface NormalizedSchema extends NxHerokuGeneratorSchema {
-  projectName: string;
-  projectRoot: string;
-  projectDirectory: string;
-  parsedTags: string[];
-}
-
-function normalizeOptions(
-  tree: Tree,
+function createTargetOptions(
   options: NxHerokuGeneratorSchema
-): NormalizedSchema {
-  const name = names(options.name).fileName;
-  const projectDirectory = options.directory
-    ? `${names(options.directory).fileName}/${name}`
-    : name;
-  const projectName = projectDirectory.replace(new RegExp('/', 'g'), '-');
-  const projectRoot = `${getWorkspaceLayout(tree).libsDir}/${projectDirectory}`;
-  const parsedTags = options.tags
-    ? options.tags.split(',').map((s) => s.trim())
-    : [];
+): TargetConfiguration['options'] {
+  const targetOptions: (keyof NxHerokuGeneratorSchema)[] = [
+    'appNamePrefix',
+    'repositoryName',
+    'org',
+  ];
 
+  return targetOptions
+    .filter((key) => Boolean(options[key]))
+    .reduce(
+      (targetOptions, key) => ({
+        ...targetOptions,
+        [key]: options[key],
+      }),
+      {}
+    );
+}
+
+function createTarget(options: NxHerokuGeneratorSchema): TargetConfiguration {
+  const targetOptions = createTargetOptions(options);
   return {
-    ...options,
-    projectName,
-    projectRoot,
-    projectDirectory,
-    parsedTags,
+    executor: '@aloes/nx-heroku:deploy',
+    ...(Object.keys(targetOptions).length > 0
+      ? { options: targetOptions }
+      : {}),
   };
 }
 
-function addFiles(tree: Tree, options: NormalizedSchema) {
-  const templateOptions = {
-    ...options,
-    ...names(options.name),
-    offsetFromRoot: offsetFromRoot(options.projectRoot),
-    template: '',
-  };
-  generateFiles(
-    tree,
-    path.join(__dirname, 'files'),
-    options.projectRoot,
-    templateOptions
-  );
+function updateProjects(
+  tree: Tree,
+  options: NxHerokuGeneratorSchema,
+  predicate: (projectName: string) => boolean
+) {
+  getProjects(tree).forEach((project, projectName) => {
+    if (predicate(projectName)) {
+      const targets = project.targets ?? {};
+      targets.deploy = createTarget(options);
+      updateProjectConfiguration(tree, projectName, { ...project, targets });
+    }
+  });
 }
 
 export default async function (tree: Tree, options: NxHerokuGeneratorSchema) {
-  const normalizedOptions = normalizeOptions(tree, options);
-  addProjectConfiguration(tree, normalizedOptions.projectName, {
-    root: normalizedOptions.projectRoot,
-    projectType: 'library',
-    sourceRoot: `${normalizedOptions.projectRoot}/src`,
-    targets: {
-      build: {
-        executor: '@nx-heroku/nx-heroku:build',
-      },
-    },
-    tags: normalizedOptions.parsedTags,
-  });
-  addFiles(tree, normalizedOptions);
-  await formatFiles(tree);
+  updateProjects(
+    tree,
+    options,
+    (projectName) => options.projectName === projectName
+  );
 }

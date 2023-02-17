@@ -2,27 +2,33 @@
   "$schema": "http://json-schema.org/schema",
   "cli": "nx",
   "$id": "NxHeroku",
-  "title": "",
+  "title": "@aloes/nx-heroku:deploy target generator",
   "type": "object",
   "properties": {
-    "name": {
+    "projectName": {
       "type": "string",
       "description": "",
       "$default": {
         "$source": "argv",
         "index": 0
       },
-      "x-prompt": "What name would you like to use?"
+      "x-prompt": "Which project would you want to deploy on Heroku?"
     },
-    "tags": {
+    "appNamePrefix": {
+      "description": "Heroku app name prefix",
       "type": "string",
-      "description": "Add tags to the project (used for linting)",
-      "alias": "t"
+      "example": "identitifer"
     },
-    "directory": {
+    "repositoryName": {
+      "description": "Name of the GitHub repository, to create connection with the Heroku application",
       "type": "string",
-      "description": "A directory where the project is placed"
+      "example": "my-app"
+    },
+    "org": {
+      "description": "Heroku team name and organization name in Github",
+      "type": "string",
+      "default": "my-org"
     }
   },
-  "required": ["name"]
+  "required": ["projectName"]
 }
