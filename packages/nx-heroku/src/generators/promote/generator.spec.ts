@@ -8,7 +8,7 @@ import {
 import generator from './generator';
 import { GeneratorSchema } from '../common/schema';
 
-describe('nx-heroku deploy generator', () => {
+describe('nx-heroku promote generator', () => {
   let appTree: Tree;
   const options: GeneratorSchema = {
     projectName: 'test',
@@ -32,9 +32,9 @@ describe('nx-heroku deploy generator', () => {
     await generator(appTree, options);
     const config = readProjectConfiguration(appTree, 'test');
     expect(config).toBeDefined();
-    expect(config.targets).toHaveProperty('deploy');
-    expect(config.targets.deploy).toEqual({
-      executor: '@aloes/nx-heroku:deploy',
+    expect(config.targets).toHaveProperty('promote');
+    expect(config.targets.promote).toEqual({
+      executor: '@aloes/nx-heroku:promote',
       options: {
         org: 'test-org',
       },

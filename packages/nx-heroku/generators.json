@@ -7,6 +7,11 @@
       "factory": "./src/generators/deploy/generator",
       "schema": "./src/generators/common/schema.json",
       "description": "deploy target generator"
+    },
+    "promote": {
+      "factory": "./src/generators/promote/generator",
+      "schema": "./src/generators/common/schema.json",
+      "description": "promote target generator"
     }
   }
 }

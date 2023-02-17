@@ -26,7 +26,14 @@ export async function createCatFile(options: {
 }
 
 export async function removeCatFile(): Promise<void> {
-  await rm('~/.netrc');
+  try {
+    await rm('~/.netrc');
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return;
+    }
+    throw error;
+  }
 }
 
 export * from './addons';
