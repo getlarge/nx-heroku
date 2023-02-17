@@ -85,6 +85,7 @@ class HerokuApp {
         join(process.cwd(), `apps/${projectName}/Procfile`),
         procfile
       );
+      // TODO: allow for custom commit message
       await exec(
         `git add -A && git commit -m "ci(${projectName}): add Procfile" -n --no-gpg-sign`
       );
@@ -109,6 +110,7 @@ class HerokuApp {
       if (destBuildPackFile === srcBuildPackFile) return;
 
       await writeFile(destPath, srcBuildPackFile);
+      // TODO: allow for custom commit message
       await exec(
         `git add -f ${buildPackFile} && git commit -m "ci(${projectName}): add ${buildPackFile}" -n --no-gpg-sign`
       );
