@@ -36,12 +36,20 @@
     "org": {
       "description": "Heroku team name and organization name in Github",
       "type": "string",
-      "default": "my-org"
+      "example": "my-org"
     },
     "serviceUser": {
       "description": "Heroku team member used to automate deployment",
       "format": "email",
       "type": "string"
+    },
+    "variables": {
+      "description": "Heroku config variables",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "example": { "SERVER_URL": "value", "DB_URL": "value" }
     },
     "buildPacks": {
       "description": "Ordered list of builpacks that should be added, see https://devcenter.heroku.com/articles/using-multiple-buildpacks-for-an-app",
@@ -51,14 +59,6 @@
         "type": "string"
       },
       "example": ["heroku/nodejs", "heroku-community/multi-procfile"]
-    },
-    "variables": {
-      "description": "Heroku config variables",
-      "type": "object",
-      "additionalProperties": {
-        "type": "string"
-      },
-      "example": { "SERVER_URL": "value", "DB_URL": "value" }
     },
     "addons": {
       "description": "List of addons that should be present, in the format <addon_plan_name>#<alias> where alias is optional.",

@@ -2,17 +2,22 @@ import type { ExecutorContext } from '@nrwl/devkit';
 import { toNumber } from 'lodash';
 import { Inject, Service } from 'typedi';
 
-import { Environment } from '../../common/constants';
+import { Environment, EXECUTOR_CONTEXT } from '../../common/constants';
 import {
   getGitEmail,
   getGitLocalBranchName,
   getGitUserName,
 } from '../../common/git';
-import { createCatFile, getAppName, getRemoteName } from '../../common/heroku';
+import {
+  createCatFile,
+  getAppName,
+  getRemoteName,
+  removeCatFile,
+} from '../../common/heroku';
 import { Logger, LoggerInterface } from '../../common/logger';
 import { exec, expandOptions } from '../../common/utils';
 import { HerokuAppService } from './heroku-app.service';
-import { DEPLOY_EXECUTOR_SCHEMA, EXECUTOR_CONTEXT } from './tokens';
+import { DEPLOY_EXECUTOR_SCHEMA } from './tokens';
 
 import { DeployExecutorSchema } from '../schema';
 
@@ -134,6 +139,8 @@ export class HerokuDeployService {
         (await exec(`git config user.name "${this.previousGitConfig.name}"`));
       this.previousGitConfig.email &&
         (await exec(`git config user.email "${this.previousGitConfig.email}"`));
+
+      await removeCatFile();
     } catch (error) {
       this.logger.error(error);
     }

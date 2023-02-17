@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "version": 2,
+  "cli": "nx",
+  "title": "Promote executor",
+  "description": "",
+  "type": "object",
+  "properties": {
+    "config": {
+      "type": "string",
+      "enum": ["staging", "production"],
+      "description": "Name of the project environment (staging, production)",
+      "default": "staging"
+    },
+    "apiKey": {
+      "description": "This will be used for authentication on Heroku. You can find it in your heroku homepage account settings",
+      "default": "${HEROKU_API_KEY}"
+    },
+    "email": {
+      "description": "Email that you use to authenticate on Heroku",
+      "format": "email",
+      "default": "${HEROKU_EMAIL}"
+    },
+    "appNamePrefix": {
+      "description": "Heroku app name prefix",
+      "type": "string",
+      "example": "identitifer"
+    },
+    "org": {
+      "description": "Heroku team name and organization name in Github",
+      "type": "string",
+      "example": "my-org"
+    },
+    "serviceUser": {
+      "description": "Heroku team member used to automate deployment",
+      "format": "email",
+      "type": "string"
+    },
+    "variables": {
+      "description": "Heroku config variables",
+      "type": "object",
+      "example": { "SERVER_URL": "value", "DB_URL": "value" }
+    },
+    "verbose": {
+      "type": "boolean"
+    }
+  },
+  "required": ["config", "apiKey", "email", "org"]
+}

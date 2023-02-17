@@ -1,3 +1,4 @@
+import { rm } from 'fs/promises';
 import isEmail from 'validator/lib/isEmail';
 import isUUID from 'validator/lib/isUUID';
 
@@ -22,6 +23,10 @@ export async function createCatFile(options: {
         login ${email}
         password ${apiKey}
     EOF`);
+}
+
+export async function removeCatFile(): Promise<void> {
+  await rm('~/.netrc');
 }
 
 export * from './addons';

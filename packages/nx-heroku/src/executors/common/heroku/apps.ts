@@ -85,14 +85,14 @@ export function getPipelineDownstream(environment: Environment): Environment {
 export async function pipelineExists(options: {
   appNamePrefix?: string;
   projectName: string;
-}) {
+}): Promise<boolean> {
   const pipelineName = getPipelineName(options);
   // capture pipelines list and remove ANSI styles
   const { stdout, stderr } = await exec(`heroku pipelines --json`, {
     encoding: 'utf-8',
   });
   stderr && logger.error(new Error(stderr));
-  const pipelines = parseJsonString(stdout).map((pipeline) => pipeline.name);
+  const pipelines = parseJsonString(stdout).map((pipeline) => pipeline?.name);
   return pipelines.includes(pipelineName);
 }
 
@@ -103,7 +103,7 @@ export async function appExists(options: {
     // check if appName exists, throws an error if it doesn't
     const { stderr } = await exec(`heroku apps:info -a ${options.appName}`, {});
     if (stderr) {
-      logger.error(new Error(stderr));
+      logger.warn(stderr);
       return false;
     }
     return true;
@@ -137,4 +137,32 @@ export async function addAppToPipeline(options: {
     { encoding: 'utf-8' }
   );
   stderr && logger.error(new Error(stderr));
+}
+
+export async function promoteApp(options: {
+  appNamePrefix?: string;
+  projectName: string;
+  environment: Environment;
+  verbose?: boolean;
+}): Promise<string> {
+  const { appNamePrefix, projectName, environment, verbose } = options;
+  const sourceEnv = getPipelineDownstream(environment);
+  const sourceAppName = getAppName({
+    appNamePrefix,
+    projectName,
+    environment: sourceEnv,
+    verbose,
+  });
+  const appName = getAppName({
+    appNamePrefix,
+    projectName,
+    environment,
+    verbose,
+  });
+
+  const { stdout, stderr } = await exec(
+    `heroku pipelines:promote --app ${sourceAppName} --to ${appName}`
+  );
+  stderr && logger.error(new Error(stderr));
+  return stdout;
 }

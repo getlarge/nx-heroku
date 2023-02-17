@@ -5,6 +5,11 @@
       "implementation": "./src/executors/deploy/executor",
       "schema": "./src/executors/deploy/schema.json",
       "description": "deploy executor"
+    },
+    "promote": {
+      "implementation": "./src/executors/promote/executor",
+      "schema": "./src/executors/promote/schema.json",
+      "description": "promote executor"
     }
   }
 }

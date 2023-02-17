@@ -1,3 +1,6 @@
+import type { ExecutorContext } from '@nrwl/devkit';
+import { Token } from 'typedi';
+
 export const HEROKU_MAX_APP_NAME_LENGTH = 30;
 export const HEROKU_STACK = 'heroku-22';
 export const HEROKU_BUILDPACK_MULTI_PROCFILE =
@@ -14,3 +17,5 @@ export const ASCII_COLORS_REGEX =
 
 export type Environment = 'development' | 'staging' | 'production';
 export type HerokuEnvironment = 'dev' | 'staging' | 'prod';
+
+export const EXECUTOR_CONTEXT = new Token<ExecutorContext>('EXECUTOR_CONTEXT');

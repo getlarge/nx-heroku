@@ -10,16 +10,18 @@
     },
     "apiKey": {
       "description": "This will be used for authentication on Heroku. You can find it in your heroku homepage account settings",
+      "type": "string",
       "default": "${HEROKU_API_KEY}"
     },
     "email": {
       "description": "Email that you use to authenticate on Heroku",
+      "type": "string",
       "default": "${HEROKU_EMAIL}"
     },
     "appNamePrefix": {
       "description": "Heroku app name prefix",
-      "example": "s1seven",
-      "default": "s1"
+      "type": "string",
+      "example": "identity"
     },
     "verbose": {
       "type": "boolean"
