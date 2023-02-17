@@ -26,6 +26,7 @@
     "jest": "28.1.1",
     "jest-environment-jsdom": "28.1.1",
     "jsonc-eslint-parser": "^2.1.0",
+    "ngx-deploy-npm": "^5.0.0",
     "nx": "15.7.1",
     "prettier": "^2.6.2",
     "ts-jest": "28.0.5",

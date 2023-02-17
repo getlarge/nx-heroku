@@ -11,6 +11,7 @@
         "outputPath": "dist/packages/nx-heroku",
         "main": "packages/nx-heroku/src/index.ts",
         "tsConfig": "packages/nx-heroku/tsconfig.lib.json",
+        "packageJson": "packages/nx-heroku/package.json",
         "assets": [
           "packages/nx-heroku/*.md",
           {
@@ -31,6 +32,11 @@
           {
             "input": "./packages/nx-heroku",
             "glob": "executors.json",
+            "output": "."
+          },
+          {
+            "input": "./packages/nx-heroku",
+            "glob": "package.json",
             "output": "."
           }
         ]
@@ -60,6 +66,12 @@
           "ci": true,
           "codeCoverage": true
         }
+      }
+    },
+    "publish": {
+      "executor": "ngx-deploy-npm:deploy",
+      "options": {
+        "access": "public"
       }
     }
   },
