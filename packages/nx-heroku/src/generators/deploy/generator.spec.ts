@@ -6,11 +6,11 @@ import {
 } from '@nrwl/devkit';
 
 import generator from './generator';
-import { NxHerokuGeneratorSchema } from './schema';
+import { GeneratorSchema } from '../common/schema';
 
 describe('nx-heroku generator', () => {
   let appTree: Tree;
-  const options: NxHerokuGeneratorSchema = {
+  const options: GeneratorSchema = {
     projectName: 'test',
     org: 'test-org',
   };
