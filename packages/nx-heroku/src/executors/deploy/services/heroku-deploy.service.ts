@@ -1,49 +1,30 @@
 import type { ExecutorContext } from '@nrwl/devkit';
-import { toNumber } from 'lodash';
 import { Inject, Service } from 'typedi';
 
 import { Environment, EXECUTOR_CONTEXT } from '../../common/constants';
-import {
-  getGitEmail,
-  getGitLocalBranchName,
-  getGitUserName,
-} from '../../common/git';
-import {
-  createCatFile,
-  getAppName,
-  getRemoteName,
-  removeCatFile,
-} from '../../common/heroku';
+import { getGitEmail, getGitUserName } from '../../common/git';
+import { getAppName, getRemoteName } from '../../common/heroku';
 import { Logger, LoggerInterface } from '../../common/logger';
-import { exec, expandOptions } from '../../common/utils';
+import { exec } from '../../common/utils';
 import { HerokuAppService } from './heroku-app.service';
 import { DEPLOY_EXECUTOR_SCHEMA } from './tokens';
 
 import { DeployExecutorSchema } from '../schema';
+import { HerokuBaseService } from '../../common/heroku/base.service';
 
 @Service()
-export class HerokuDeployService {
+export class HerokuDeployService extends HerokuBaseService<DeployExecutorSchema> {
   private previousGitConfig = { name: '', email: '' };
 
   constructor(
     @Inject(DEPLOY_EXECUTOR_SCHEMA)
-    private options: DeployExecutorSchema,
+    options: DeployExecutorSchema,
     @Inject(EXECUTOR_CONTEXT) private readonly context: ExecutorContext,
     @Inject(() => HerokuAppService) private herokuAppManager: HerokuAppService,
-    @Logger() private logger: LoggerInterface
+    @Logger() logger: LoggerInterface
   ) {
+    super(options, logger);
     this.logger.verbose = options.verbose;
-  }
-
-  /*
-   * 1. Expand options (interpolate variables starting with $)
-   * 2. Set default branch
-   * 3. set watch delay to milliseconds
-   */
-  private async validateOptions() {
-    this.options = expandOptions(this.options);
-    this.options.branch ??= await getGitLocalBranchName();
-    this.options.watchDelay = toNumber(this.options.watchDelay) * 1000;
   }
 
   /*
@@ -86,7 +67,7 @@ export class HerokuDeployService {
       await exec('git fetch --prune --unshallow');
     }
 
-    await createCatFile(this.options);
+    await this.setupHerokuAuth();
     this.logger.info('Created and wrote to ~/.netrc');
   }
 
@@ -140,7 +121,7 @@ export class HerokuDeployService {
       this.previousGitConfig.email &&
         (await exec(`git config user.email "${this.previousGitConfig.email}"`));
 
-      await removeCatFile();
+      await this.tearDownHerokuAuth();
     } catch (error) {
       this.logger.error(error);
     }

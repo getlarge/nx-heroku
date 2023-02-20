@@ -1,43 +1,24 @@
-import { rm } from 'fs/promises';
-import isEmail from 'validator/lib/isEmail';
-import isUUID from 'validator/lib/isUUID';
-
 import { exec } from '../utils';
+import { AppName } from './apps';
 
-export async function createCatFile(options: {
-  email: string;
-  apiKey: string;
-}): Promise<void> {
-  const { email, apiKey } = options;
-  if (!isEmail(email)) {
-    throw new TypeError(`email (${email}) is not valid.`);
+export async function dynoCommand(options: {
+  command: 'kill' | 'restart' | 'stop';
+  appName: AppName;
+}) {
+  const { appName, command } = options;
+  const { stdout, stderr } = await exec(
+    `heroku dyno:${command} -a ${appName}`,
+    { encoding: 'utf-8' }
+  );
+  if (stderr) {
+    throw new Error(stderr);
   }
-  if (!isUUID(apiKey)) {
-    throw new TypeError(`apiKey (${apiKey}) is not valid.`);
-  }
-  await exec(`cat >~/.netrc <<EOF
-    machine api.heroku.com
-        login ${email}
-        password ${apiKey}
-    machine git.heroku.com
-        login ${email}
-        password ${apiKey}
-    EOF`);
-}
-
-export async function removeCatFile(): Promise<void> {
-  try {
-    await rm('~/.netrc');
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      return;
-    }
-    throw error;
-  }
+  return stdout;
 }
 
 export * from './addons';
 export * from './apps';
+export * from './auth';
 export * from './config-vars';
 export * from './drains';
 export * from './members';
