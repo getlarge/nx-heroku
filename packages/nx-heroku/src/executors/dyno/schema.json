@@ -33,5 +33,5 @@
       "enum": ["kill", "restart", "stop"]
     }
   },
-  "required": ["config", "apiKey", "email", "appNamePrefix", "command"]
+  "required": ["config", "apiKey", "email", "command"]
 }
