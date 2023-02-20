@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "type": "object",
+  "cli": "nx",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "major",
+        "minor",
+        "patch",
+        "premajor",
+        "preminor",
+        "prepatch",
+        "prerelease",
+        "from-git"
+      ],
+      "description": "The version type to bump the package to."
+    }
+  },
+  "required": ["type"]
+}

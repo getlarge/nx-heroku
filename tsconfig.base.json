@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@aloes/bump": ["packages/bump/src/index.ts"],
       "@aloes/nx-heroku": ["packages/nx-heroku/src/index.ts"]
     }
   },
