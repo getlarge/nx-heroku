@@ -10,6 +10,11 @@
       "implementation": "./src/executors/promote/executor",
       "schema": "./src/executors/promote/schema.json",
       "description": "promote executor"
+    },
+    "dyno": {
+      "implementation": "./src/executors/dyno/executor",
+      "schema": "./src/executors/dyno/schema.json",
+      "description": "dyno executor"
     }
   }
 }

@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "version": 2,
+  "cli": "nx",
+  "title": "Dyno executor",
+  "description": "",
+  "type": "object",
+  "properties": {
+    "config": {
+      "type": "string",
+      "enum": ["development", "staging", "production"],
+      "description": "Name of the project environment (development, staging, production)",
+      "default": "development"
+    },
+    "apiKey": {
+      "description": "This will be used for authentication on Heroku. You can find it in your heroku homepage account settings",
+      "type": "string",
+      "default": "${HEROKU_API_KEY}"
+    },
+    "email": {
+      "description": "Email that you use to authenticate on Heroku",
+      "type": "string",
+      "format": "email",
+      "default": "${HEROKU_EMAIL}"
+    },
+    "appNamePrefix": {
+      "description": "Heroku app name prefix",
+      "type": "string"
+    },
+    "command": {
+      "description": "Heroku dyno command",
+      "type": "string",
+      "enum": ["kill", "restart", "stop"]
+    }
+  },
+  "required": ["config", "apiKey", "email", "appNamePrefix", "command"]
+}
