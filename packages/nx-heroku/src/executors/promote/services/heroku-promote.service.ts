@@ -1,9 +1,7 @@
 import { ExecutorContext } from '@nrwl/devkit';
 import { Inject, Service } from 'typedi';
+
 import { EXECUTOR_CONTEXT } from '../../common/constants';
-import { PROMOTE_EXECUTOR_SCHEMA } from './tokens';
-import { PromoteExecutorSchema } from '../schema';
-import { Logger, LoggerInterface } from '../../common/logger';
 import {
   addAppToPipeline,
   addMember,
@@ -17,6 +15,9 @@ import {
   promoteApp,
 } from '../../common/heroku';
 import { HerokuBaseService } from '../../common/heroku/base.service';
+import { Logger, LoggerInterface } from '../../common/logger';
+import { PromoteExecutorSchema } from '../schema';
+import { PROMOTE_EXECUTOR_SCHEMA } from './tokens';
 
 @Service()
 export class HerokuPromoteService extends HerokuBaseService<PromoteExecutorSchema> {

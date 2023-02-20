@@ -1,11 +1,12 @@
 import { ExecutorContext } from '@nrwl/devkit';
 import { Inject, Service } from 'typedi';
-import { DYNO_EXECUTOR_SCHEMA } from './tokens';
-import { DynoExecutorSchema } from '../schema';
+
 import { EXECUTOR_CONTEXT } from '../../common/constants';
-import { dynoCommand, getAppName, AppName } from '../../common/heroku';
-import { Logger, LoggerInterface } from '../../common/logger';
+import { AppName, dynoCommand, getAppName } from '../../common/heroku';
 import { HerokuBaseService } from '../../common/heroku/base.service';
+import { Logger, LoggerInterface } from '../../common/logger';
+import { DynoExecutorSchema } from '../schema';
+import { DYNO_EXECUTOR_SCHEMA } from './tokens';
 
 @Service()
 export class HerokuDynoService extends HerokuBaseService<DynoExecutorSchema> {

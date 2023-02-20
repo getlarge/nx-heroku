@@ -1,9 +1,10 @@
 import type { ExecutorContext } from '@nrwl/devkit';
-import type { DynoExecutorSchema } from './schema';
-import executor from './executor';
-import { HerokuDynoService } from './services/heroku-dyno.service';
-import { ConsoleLogger, type LoggerInterface } from '../common/logger';
 import Container from 'typedi';
+
+import { type LoggerInterface, ConsoleLogger } from '../common/logger';
+import executor from './executor';
+import type { DynoExecutorSchema } from './schema';
+import { HerokuDynoService } from './services/heroku-dyno.service';
 
 const options: Omit<DynoExecutorSchema, 'command'> = {
   config: 'development',

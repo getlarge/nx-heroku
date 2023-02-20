@@ -4,6 +4,7 @@ import {
   Tree,
   updateProjectConfiguration,
 } from '@nrwl/devkit';
+
 import { GeneratorSchema } from './schema';
 
 export type TargetName = 'deploy' | 'promote';

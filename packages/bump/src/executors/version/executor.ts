@@ -1,5 +1,6 @@
 import type { ExecutorContext } from '@nrwl/devkit';
 import { execSync } from 'child_process';
+
 import { VersionExecutorSchema } from './schema';
 
 export default async function runExecutor(

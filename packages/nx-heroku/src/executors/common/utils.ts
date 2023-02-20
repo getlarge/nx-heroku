@@ -2,6 +2,7 @@ import { exec as cbBasedExec } from 'child_process';
 import { expand } from 'dotenv-expand';
 import { cloneDeep, isString, merge, pickBy } from 'lodash';
 import { promisify } from 'util';
+
 import { ASCII_COLORS_REGEX } from './constants';
 
 export const exec = promisify(cbBasedExec);

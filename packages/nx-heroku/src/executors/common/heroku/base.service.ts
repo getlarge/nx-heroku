@@ -1,6 +1,6 @@
-import { createCatFile, removeCatFile } from './auth';
 import { LoggerInterface } from '../logger';
 import { expandOptions } from '../utils';
+import { createCatFile, removeCatFile } from './auth';
 
 export type BaseOptions = object & {
   email: string;

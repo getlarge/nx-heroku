@@ -24,7 +24,42 @@
     {
       "files": ["*.ts", "*.tsx"],
       "extends": ["plugin:@nrwl/nx/typescript"],
-      "rules": {}
+      "plugins": ["unused-imports", "import", "simple-import-sort"],
+      "rules": {
+        "eqeqeq": ["error", "always", { "null": "never" }],
+        "complexity": "error",
+        "max-depth": "error",
+        "max-lines": "error",
+        "max-lines-per-function": "error",
+        "max-nested-callbacks": ["error", { "max": 3 }],
+        "max-params": ["error", 10],
+        "no-console": [
+          "error",
+          { "allow": ["error", "warn", "info", "table"] }
+        ],
+        "no-duplicate-imports": "error",
+        "no-empty": "error",
+        "no-fallthrough": "error",
+        "no-param-reassign": "error",
+        "no-unreachable": "error",
+        "no-unreachable-loop": "error",
+        "no-unused-vars": "off",
+        "no-var": "error",
+        "prefer-const": "error",
+        "simple-import-sort/imports": [
+          "error",
+          {
+            "groups": [
+              ["^\\u0000"],
+              ["^@?\\w"],
+              ["^(@aloes)(/.*|$)"],
+              ["^"],
+              ["^\\."]
+            ]
+          }
+        ],
+        "simple-import-sort/exports": "error"
+      }
     },
     {
       "files": ["*.js", "*.jsx"],

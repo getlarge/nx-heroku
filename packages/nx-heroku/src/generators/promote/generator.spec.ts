@@ -1,12 +1,12 @@
-import { createTreeWithEmptyWorkspace } from '@nrwl/devkit/testing';
 import {
-  Tree,
-  readProjectConfiguration,
   addProjectConfiguration,
+  readProjectConfiguration,
+  Tree,
 } from '@nrwl/devkit';
+import { createTreeWithEmptyWorkspace } from '@nrwl/devkit/testing';
 
-import generator from './generator';
 import { GeneratorSchema } from '../common/schema';
+import generator from './generator';
 
 describe('nx-heroku promote generator', () => {
   let appTree: Tree;

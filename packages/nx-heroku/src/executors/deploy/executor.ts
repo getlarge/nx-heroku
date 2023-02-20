@@ -1,9 +1,10 @@
 import type { ExecutorContext } from '@nrwl/devkit';
 import { Container } from 'typedi';
+
+import { EXECUTOR_CONTEXT } from '../common/constants';
+import { DeployExecutorSchema } from './schema';
 import { HerokuDeployService } from './services/heroku-deploy.service';
 import { DEPLOY_EXECUTOR_SCHEMA } from './services/tokens';
-import { DeployExecutorSchema } from './schema';
-import { EXECUTOR_CONTEXT } from '../common/constants';
 
 export default async function herokuDeployment(
   options: DeployExecutorSchema,

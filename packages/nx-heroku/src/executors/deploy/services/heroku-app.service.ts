@@ -1,5 +1,6 @@
+/* eslint-disable max-lines */
 import axios from 'axios';
-import { spawn } from 'child_process';
+import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { Inject, Service } from 'typedi';
@@ -21,8 +22,8 @@ import {
   mergeConfigVars,
   pipelineExists,
 } from '../../common/heroku';
-import { exec, sleep } from '../../common/utils';
 import { Logger, LoggerInterface } from '../../common/logger';
+import { exec, sleep } from '../../common/utils';
 import { DeployExecutorSchema, ExtendedDeployExecutorSchema } from '../schema';
 import { DEPLOY_EXECUTOR_SCHEMA } from './tokens';
 
@@ -280,15 +281,34 @@ class HerokuApp {
     return true;
   }
 
-  private async deploy() {
-    const {
-      appName,
-      branch,
+  private createDeployProcess(
+    signal: AbortSignal
+  ): ChildProcessWithoutNullStreams {
+    const { branch, remoteName, useForce } = this.options;
+    // calling git push with option progress, it is required to push output to stdout
+    // otherwise listening to stdout and stderr would not work, and spawn options would require stdio: 'inherit'
+    const args = [
+      'push',
       remoteName,
-      useForce,
-      resetRepo = false,
-      watchDelay = 0,
-    } = this.options;
+      `${branch}:refs/heads/main`,
+      '--progress',
+    ];
+    if (useForce) {
+      args.push('--force');
+    }
+
+    const push = spawn('git', args, { signal });
+    push.stdout.setEncoding('utf-8');
+    push.stdout.on('data', (data) => this.logger.info(data));
+    push.stderr.setEncoding('utf-8');
+    push.stderr.on('data', (data) => this.logger.error(data));
+
+    return push;
+  }
+
+  // eslint-disable-next-line max-lines-per-function
+  private async deploy() {
+    const { appName, branch, resetRepo = false, watchDelay = 0 } = this.options;
     if (resetRepo) {
       const remoteBranch = await this.getRemoteBranch();
       this.resetAppRepo(appName, remoteBranch);
@@ -297,25 +317,9 @@ class HerokuApp {
     // Wait for [watchDelay] seconds once the build started to ensure it works and kill child process
     // if watchDelay === 0, the process will not be aborted
     await new Promise<void>((resolve, reject) => {
-      // calling git push with option progress, it is required to push output to stdout
-      // otherwise listening to stdout and stderr would not work, and spawn options would require stdio: 'inherit'
-      const args = [
-        'push',
-        remoteName,
-        `${branch}:refs/heads/main`,
-        '--progress',
-      ];
-      if (useForce) {
-        args.push('--force');
-      }
       const controller = new AbortController();
       const { signal } = controller;
-      const push = spawn('git', args, { signal });
-      push.stdout.setEncoding('utf-8');
-      push.stdout.on('data', (data) => this.logger.info(data));
-      push.stderr.setEncoding('utf-8');
-      push.stderr.on('data', (data) => console.error(data));
-
+      const push = this.createDeployProcess(signal);
       const timer = setTimeout(() => {
         if (watchDelay) {
           controller.abort();

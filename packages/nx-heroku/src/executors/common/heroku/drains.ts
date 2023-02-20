@@ -1,6 +1,6 @@
 import { logger } from '@nrwl/devkit';
-import isURL from 'validator/lib/isURL';
 import { URL } from 'url';
+import isURL from 'validator/lib/isURL';
 
 import { exec, parseJsonString } from '../utils';
 

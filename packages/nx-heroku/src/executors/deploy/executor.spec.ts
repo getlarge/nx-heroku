@@ -1,11 +1,13 @@
+/* eslint-disable max-lines-per-function */
 import { ExecutorContext } from '@nrwl/devkit';
 import Container from 'typedi';
+
+import { getAppName } from '../common/heroku';
+import { ConsoleLogger, LoggerInterface } from '../common/logger';
 import executor from './executor';
 import { DeployExecutorSchema } from './schema';
-import { HerokuDeployService } from './services/heroku-deploy.service';
 import { HerokuAppService } from './services/heroku-app.service';
-import { ConsoleLogger, LoggerInterface } from '../common/logger';
-import { getAppName } from '../common/heroku';
+import { HerokuDeployService } from './services/heroku-deploy.service';
 
 const options: DeployExecutorSchema = {
   config: ['development'],

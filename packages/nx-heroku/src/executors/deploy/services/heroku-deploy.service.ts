@@ -4,13 +4,12 @@ import { Inject, Service } from 'typedi';
 import { Environment, EXECUTOR_CONTEXT } from '../../common/constants';
 import { getGitEmail, getGitUserName } from '../../common/git';
 import { getAppName, getRemoteName } from '../../common/heroku';
+import { HerokuBaseService } from '../../common/heroku/base.service';
 import { Logger, LoggerInterface } from '../../common/logger';
 import { exec } from '../../common/utils';
+import { DeployExecutorSchema } from '../schema';
 import { HerokuAppService } from './heroku-app.service';
 import { DEPLOY_EXECUTOR_SCHEMA } from './tokens';
-
-import { DeployExecutorSchema } from '../schema';
-import { HerokuBaseService } from '../../common/heroku/base.service';
 
 @Service()
 export class HerokuDeployService extends HerokuBaseService<DeployExecutorSchema> {
