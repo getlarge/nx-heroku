@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# retrieve staged file names
+FILES=$(git diff --cached --name-only --diff-filter=ACMR | sed 's| |\\ |g')
+[ -z "$FILES" ] && exit 0
+# format staged files
+echo "$FILES" | xargs npx --no-install nx format --files
+# add formatted files to staged files
+echo "$FILES" | xargs git add
+
+exit 0
