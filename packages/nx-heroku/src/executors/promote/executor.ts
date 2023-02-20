@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import type { ExecutorContext } from '@nrwl/devkit';
 import Container from 'typedi';
 
