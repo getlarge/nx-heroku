@@ -2,7 +2,7 @@ import { logger } from '@nrwl/devkit';
 import Container, { Constructable } from 'typedi';
 
 export interface LoggerInterface {
-  verbose: boolean;
+  debug: boolean;
   log(message: string): void;
   info(message: string): void;
   warn(message: string): void;
@@ -10,30 +10,30 @@ export interface LoggerInterface {
 }
 
 export class ConsoleLogger implements LoggerInterface {
-  private _verbose = false;
+  private _debug = false;
 
-  get verbose() {
-    return this._verbose;
+  get debug() {
+    return this._debug;
   }
 
-  set verbose(value: boolean) {
-    this._verbose = value;
+  set debug(value: boolean) {
+    this._debug = value;
   }
 
   log(message: string) {
-    this.verbose && logger.log(message);
+    this.debug && logger.log(message);
   }
 
   info(message: string) {
-    this.verbose && logger.info(message);
+    this.debug && logger.info(message);
   }
 
   warn(message: string | unknown) {
-    this.verbose && logger.warn(message);
+    this.debug && logger.warn(message);
   }
 
   error(message: string | Error | unknown) {
-    this.verbose && logger.error(message);
+    this.debug && logger.error(message);
   }
 }
 

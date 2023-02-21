@@ -23,7 +23,7 @@
       "type": "string",
       "example": "identity"
     },
-    "verbose": {
+    "debug": {
       "type": "boolean"
     }
   },

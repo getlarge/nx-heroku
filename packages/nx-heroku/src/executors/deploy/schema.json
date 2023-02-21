@@ -183,6 +183,9 @@
     "rollbackOnHealthcheckFailed": {
       "description": "When set to true this will attempt to rollback to the previous release if the healthcheck fails",
       "type": "boolean"
+    },
+    "debug": {
+      "type": "boolean"
     }
   },
   "required": ["config", "apiKey", "email", "org", "watchDelay"]

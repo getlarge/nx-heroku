@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 import type { ExecutorContext } from '@nrwl/devkit';
 import Container from 'typedi';
 
@@ -10,7 +11,7 @@ const options: Omit<DynoExecutorSchema, 'command'> = {
   config: 'development',
   apiKey: 'heroku-user-api-key',
   email: 'heroku-user-email',
-  verbose: true,
+  debug: true,
 };
 
 class MockHerokuDynoService extends HerokuDynoService {
@@ -31,7 +32,7 @@ describe('Dyno Executor', () => {
   beforeEach(() => {
     logger = new ConsoleLogger();
     context = {
-      isVerbose: false,
+      isVerbose: true,
       cwd: process.cwd(),
       root: '/root',
       projectName: 'test',

@@ -31,6 +31,9 @@
       "description": "Heroku dyno command",
       "type": "string",
       "enum": ["kill", "restart", "stop"]
+    },
+    "debug": {
+      "type": "boolean"
     }
   },
   "required": ["config", "apiKey", "email", "command"]

@@ -36,7 +36,7 @@ const options: DeployExecutorSchema = {
   },
   useForce: true,
   watchDelay: 0,
-  verbose: true,
+  debug: true,
 };
 
 class MockHerokuAppService extends HerokuAppService {
@@ -74,7 +74,7 @@ describe('Deploy Executor', () => {
     Container.set(HerokuDeployService, herokuDeployService);
 
     context = {
-      isVerbose: false,
+      isVerbose: true,
       cwd: process.cwd(),
       root: '/root',
       projectName: 'test',

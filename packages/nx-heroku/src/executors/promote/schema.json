@@ -41,7 +41,7 @@
       "type": "object",
       "example": { "SERVER_URL": "value", "DB_URL": "value" }
     },
-    "verbose": {
+    "debug": {
       "type": "boolean"
     }
   },

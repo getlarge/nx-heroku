@@ -12,10 +12,10 @@ export default async function runExecutor(
   options: PromoteExecutorSchema,
   context: ExecutorContext
 ) {
+  options.debug ??= context.isVerbose;
   Container.set(PROMOTE_EXECUTOR_SCHEMA, options);
   Container.set(EXECUTOR_CONTEXT, context);
   const herokuPromoteService = Container.get(HerokuPromoteService);
-
   try {
     await herokuPromoteService.run();
     return { success: true };

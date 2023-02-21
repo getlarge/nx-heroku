@@ -12,6 +12,7 @@ export default async function runExecutor(
   options: DynoExecutorSchema,
   context: ExecutorContext
 ) {
+  options.debug ??= context.isVerbose;
   Container.set(DYNO_EXECUTOR_SCHEMA, options);
   Container.set(EXECUTOR_CONTEXT, context);
   const herokuDynoService = Container.get(HerokuDynoService);

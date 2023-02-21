@@ -28,10 +28,10 @@ export class HerokuPromoteService extends HerokuBaseService<PromoteExecutorSchem
     @Logger() logger: LoggerInterface
   ) {
     super(options, logger);
-    this.logger.verbose = options.verbose;
+    this.logger.debug = options.debug;
   }
 
-  async run() {
+  async run(): Promise<void> {
     await this.validateOptions();
     await this.setupHerokuAuth();
 
@@ -40,14 +40,14 @@ export class HerokuPromoteService extends HerokuBaseService<PromoteExecutorSchem
       config: environment,
       org,
       variables,
-      verbose,
+      debug,
     } = this.options;
     const { projectName } = this.context;
     const appName = getAppName({
       appNamePrefix,
       projectName,
       environment,
-      verbose,
+      debug,
     });
 
     const pipelineName = getPipelineName({ appNamePrefix, projectName });
@@ -82,7 +82,7 @@ export class HerokuPromoteService extends HerokuBaseService<PromoteExecutorSchem
     //? await addWebhook({ appName, webhook: this.options.webhook });
   }
 
-  async close() {
+  async close(): Promise<void> {
     try {
       await this.tearDownHerokuAuth();
     } catch (error) {

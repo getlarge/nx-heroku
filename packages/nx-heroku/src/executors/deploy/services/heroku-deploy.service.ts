@@ -1,8 +1,13 @@
 import type { ExecutorContext } from '@nrwl/devkit';
+import { toNumber } from 'lodash';
 import { Inject, Service } from 'typedi';
 
 import { Environment, EXECUTOR_CONTEXT } from '../../common/constants';
-import { getGitEmail, getGitUserName } from '../../common/git';
+import {
+  getGitEmail,
+  getGitLocalBranchName,
+  getGitUserName,
+} from '../../common/git';
 import { getAppName, getRemoteName } from '../../common/heroku';
 import { HerokuBaseService } from '../../common/heroku/base.service';
 import { Logger, LoggerInterface } from '../../common/logger';
@@ -23,14 +28,25 @@ export class HerokuDeployService extends HerokuBaseService<DeployExecutorSchema>
     @Logger() logger: LoggerInterface
   ) {
     super(options, logger);
-    this.logger.verbose = options.verbose;
+    this.logger.debug = options.debug;
   }
 
+  /*
+   * 1. expand options (interpolate variables starting with $)
+   * 2. Set default branch
+   * 3. set watch delay to milliseconds
+   */
+  async validateOptions(): Promise<DeployExecutorSchema> {
+    await super.validateOptions();
+    this.options.branch ??= await getGitLocalBranchName();
+    this.options.watchDelay = toNumber(this.options.watchDelay) * 1000;
+    return this.options;
+  }
   /*
    * variables are prefixed with HD to avoid conflicts with other env vars
    * this prefix is removed in 'mergeConfigVars' function
    */
-  private setEnvironmentVariables(environment: Environment) {
+  private setEnvironmentVariables(environment: Environment): void {
     const { projectName } = this.context;
     process.env.HD_NODE_ENV = environment;
     process.env.HD_PROJECT_ENV = environment;
@@ -70,14 +86,14 @@ export class HerokuDeployService extends HerokuBaseService<DeployExecutorSchema>
     this.logger.info('Created and wrote to ~/.netrc');
   }
 
-  private async deployApp(environment: Environment) {
+  private async deployApp(environment: Environment): Promise<void> {
     const { projectName } = this.context;
-    const { appNamePrefix, branch, verbose } = this.options;
+    const { appNamePrefix, branch, debug } = this.options;
     const appName = getAppName({
       appNamePrefix,
       environment,
       projectName,
-      verbose,
+      debug,
     });
     // heroku-cli default to 'heroku' which might create conflicts between apps when deploying locally | in same process
     const remoteName = getRemoteName(appName);
@@ -92,7 +108,7 @@ export class HerokuDeployService extends HerokuBaseService<DeployExecutorSchema>
     );
   }
 
-  async run() {
+  async run(): Promise<void> {
     await this.validateOptions();
     await this.setupHeroku();
     const { config, branch } = this.options;
@@ -113,7 +129,7 @@ export class HerokuDeployService extends HerokuBaseService<DeployExecutorSchema>
     }
   }
 
-  async close() {
+  async close(): Promise<void> {
     try {
       this.previousGitConfig.name &&
         (await exec(`git config user.name "${this.previousGitConfig.name}"`));

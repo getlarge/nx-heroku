@@ -34,7 +34,7 @@ export class HerokuAppService {
     private options: DeployExecutorSchema,
     @Logger() private logger: LoggerInterface
   ) {
-    this.logger.verbose = options.verbose;
+    this.logger.debug = options.debug;
   }
 
   async run(
@@ -42,7 +42,7 @@ export class HerokuAppService {
       ExtendedDeployExecutorSchema,
       'appName' | 'environment' | 'projectName' | 'remoteName'
     >
-  ) {
+  ): Promise<void> {
     const { appName, projectName } = options;
     const extendedOptions: ExtendedDeployExecutorSchema = {
       ...this.options,
@@ -141,11 +141,11 @@ class HerokuApp {
     }
   }
 
-  private createStatic() {
+  private createStatic(): Promise<void> {
     return this.createBuildpackFile(HEROKU_BUILDPACK_STATIC, STATIC_JSON);
   }
 
-  private createAptfile() {
+  private createAptfile(): Promise<void> {
     return this.createBuildpackFile(HEROKU_BUILDPACK_APT, APTFILE);
   }
 
@@ -307,7 +307,7 @@ class HerokuApp {
   }
 
   // eslint-disable-next-line max-lines-per-function
-  private async deploy() {
+  private async deploy(): Promise<void> {
     const { appName, branch, resetRepo = false, watchDelay = 0 } = this.options;
     if (resetRepo) {
       const remoteBranch = await this.getRemoteBranch();

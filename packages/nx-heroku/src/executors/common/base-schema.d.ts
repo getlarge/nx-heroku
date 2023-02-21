@@ -5,5 +5,5 @@ export interface ExecutorBaseSchema {
   apiKey: string;
   email: string;
   appNamePrefix?: string;
-  verbose?: boolean;
+  debug?: boolean;
 }

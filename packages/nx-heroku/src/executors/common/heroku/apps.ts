@@ -29,9 +29,9 @@ export function getAppName(options: {
   appNamePrefix?: string;
   environment: Environment;
   projectName: string;
-  verbose?: boolean;
+  debug?: boolean;
 }): AppName {
-  const { appNamePrefix = '', environment, projectName, verbose } = options;
+  const { appNamePrefix = '', environment, projectName, debug } = options;
   const env = getEnvName({ environment });
   let appName: AppName = appNamePrefix
     ? `${appNamePrefix}-${projectName}-${env}`
@@ -40,7 +40,7 @@ export function getAppName(options: {
     const extraLength = appNamePrefix.length + env.length + 2;
     const maxNameLength = HEROKU_MAX_APP_NAME_LENGTH - extraLength;
     const shortenProjectName = projectName.substring(0, maxNameLength);
-    if (verbose) {
+    if (debug) {
       logger.warn(`Project name has been shorten to : ${shortenProjectName}`);
     }
     appName = `${appNamePrefix}-${shortenProjectName}-${env}`;
@@ -143,21 +143,21 @@ export async function promoteApp(options: {
   appNamePrefix?: string;
   projectName: string;
   environment: Environment;
-  verbose?: boolean;
+  debug?: boolean;
 }): Promise<string> {
-  const { appNamePrefix, projectName, environment, verbose } = options;
+  const { appNamePrefix, projectName, environment, debug } = options;
   const sourceEnv = getPipelineDownstream(environment);
   const sourceAppName = getAppName({
     appNamePrefix,
     projectName,
     environment: sourceEnv,
-    verbose,
+    debug,
   });
   const appName = getAppName({
     appNamePrefix,
     projectName,
     environment,
-    verbose,
+    debug,
   });
 
   const { stdout, stderr } = await exec(

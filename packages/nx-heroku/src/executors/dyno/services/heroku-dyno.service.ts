@@ -17,7 +17,7 @@ export class HerokuDynoService extends HerokuBaseService<DynoExecutorSchema> {
     @Logger() logger: LoggerInterface
   ) {
     super(options, logger);
-    this.logger.verbose = options.verbose;
+    this.logger.debug = options.debug;
   }
 
   private call({
@@ -39,21 +39,21 @@ export class HerokuDynoService extends HerokuBaseService<DynoExecutorSchema> {
     });
   }
 
-  async run() {
+  async run(): Promise<void> {
     await this.validateOptions();
     await this.setupHerokuAuth();
-    const { appNamePrefix, command, config, verbose } = this.options;
+    const { appNamePrefix, command, config, debug } = this.options;
     const { projectName } = this.context;
     const appName = getAppName({
       appNamePrefix,
       environment: config,
       projectName,
-      verbose,
+      debug,
     });
     await this.call({ appName, command });
   }
 
-  async close() {
+  async close(): Promise<void> {
     try {
       await this.tearDownHerokuAuth();
     } catch (error) {
