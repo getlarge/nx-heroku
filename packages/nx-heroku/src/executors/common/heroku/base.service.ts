@@ -1,3 +1,4 @@
+import { HEROKU_AUTH_FILE } from '../constants';
 import { LoggerInterface } from '../logger';
 import { expandOptions } from '../utils';
 import { createCatFile, removeCatFile } from './auth';
@@ -11,21 +12,20 @@ export abstract class HerokuBaseService<O extends BaseOptions> {
   constructor(public options: O, public readonly logger: LoggerInterface) {}
 
   /*
-   * 1. Expand options (interpolate variables starting with $)
-   * 2. Set default branch
-   * 3. set watch delay to milliseconds
+   * Expand options (interpolate variables starting with $)
    */
-  async validateOptions() {
+  async validateOptions(): Promise<O> {
     this.options = expandOptions(this.options);
+    return this.options;
   }
 
   async setupHerokuAuth(): Promise<void> {
     await createCatFile(this.options);
-    this.logger.info('Created and wrote to ~/.netrc');
+    this.logger.info(`Created and wrote to ${HEROKU_AUTH_FILE}`);
   }
 
   async tearDownHerokuAuth(): Promise<void> {
     await removeCatFile();
-    this.logger.info('Removed ~/.netrc');
+    this.logger.info(`Removed ${HEROKU_AUTH_FILE}`);
   }
 }

@@ -1,8 +1,8 @@
-import { rm } from 'fs/promises';
+import { rm, writeFile } from 'fs/promises';
 import isEmail from 'validator/lib/isEmail';
 import isUUID from 'validator/lib/isUUID';
 
-import { exec } from '../utils';
+import { HEROKU_AUTH_FILE } from '../constants';
 
 export async function createCatFile(options: {
   email: string;
@@ -15,19 +15,20 @@ export async function createCatFile(options: {
   if (!isUUID(apiKey)) {
     throw new TypeError(`apiKey (${apiKey}) is not valid.`);
   }
-  await exec(`cat >~/.netrc <<EOF
-    machine api.heroku.com
-        login ${email}
-        password ${apiKey}
-    machine git.heroku.com
-        login ${email}
-        password ${apiKey}
-    EOF`);
+  const content = `
+machine api.heroku.com
+  login ${email}
+  password ${apiKey}
+machine git.heroku.com
+  login ${email}
+  password ${apiKey}`;
+
+  await writeFile(HEROKU_AUTH_FILE, content);
 }
 
 export async function removeCatFile(): Promise<void> {
   try {
-    await rm('~/.netrc');
+    await rm(HEROKU_AUTH_FILE);
   } catch (error) {
     if (error.code === 'ENOENT') {
       return;
