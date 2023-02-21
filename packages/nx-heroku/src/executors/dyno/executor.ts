@@ -19,6 +19,7 @@ export default async function runExecutor(
 
   try {
     await herokuDynoService.run();
+    logger.info(`Dyno ${options.command} successful.`);
     return { success: true };
   } catch (err) {
     logger.error(err);

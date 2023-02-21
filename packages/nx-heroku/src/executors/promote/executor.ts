@@ -18,6 +18,7 @@ export default async function runExecutor(
   const herokuPromoteService = Container.get(HerokuPromoteService);
   try {
     await herokuPromoteService.run();
+    logger.info('Promotion successful.');
     return { success: true };
   } catch (err) {
     logger.error(err);

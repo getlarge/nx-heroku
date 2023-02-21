@@ -18,6 +18,7 @@ export default async function herokuDeployment(
   const herokuDeployService = Container.get(HerokuDeployService);
   try {
     await herokuDeployService.run();
+    logger.info('Deployment successful.');
     return { success: true };
   } catch (err) {
     logger.error(err);
