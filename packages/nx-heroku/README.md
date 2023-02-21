@@ -16,3 +16,17 @@ To deploy your application to Heroku, you need to have the [Heroku CLI](https://
 
 When running the executor for the first time, you will be prompted to login to Heroku. You can also login manually by running `heroku login`.
 In Github Actions, it comes already installed.
+
+## Usage
+
+### Deploy
+
+#### Generate target
+
+To generate a target for your application, run the following command:
+
+```bash
+npx nx g @aloes/nx-heroku:deploy --projectName=my-app
+```
+
+This will generate a `deploy` target in your `project.json` file.
