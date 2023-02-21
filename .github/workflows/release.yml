@@ -23,7 +23,7 @@ jobs:
 
     strategy:
       matrix:
-        node_version: [16]
+        node-version: [16]
 
     steps:
       - uses: actions/checkout@v3
@@ -34,12 +34,14 @@ jobs:
       - name: Derive appropriate SHAs for base and head for `nx affected` commands
         id: set-shas
         uses: nrwl/nx-set-shas@v3
+        with:
+          last-successful-event: release
 
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          node_version: ${{ matrix.node_version }}
-          github_token: ${{ secrets.GH_PAT }}
+          node-version: ${{ matrix.node-version }}
+          github-token: ${{ secrets.GH_PAT }}
 
       - name: Test
         uses: ./.github/actions/test
@@ -59,11 +61,18 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          github_token: ${{ secrets.GH_PAT }}
+          github-token: ${{ secrets.GH_PAT }}
+
+      - name: Derive appropriate SHAs for base and head for `nx affected` commands
+        id: set-shas
+        uses: nrwl/nx-set-shas@v3
+        with:
+          last-successful-event: release
 
       - name: Release
         uses: ./.github/actions/release
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          npm_token: ${{ secrets.NPM_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          npm-token: ${{ secrets.NPM_TOKEN }}
           version: ${{ inputs.version }}
+          last-release: ${{ steps.set-shas.outputs.base }}
