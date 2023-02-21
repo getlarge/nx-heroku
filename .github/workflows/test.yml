@@ -19,6 +19,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Derive appropriate SHAs for base and head for `nx affected` commands
+        id: set-shas
+        uses: nrwl/nx-set-shas@v3
+
       - name: Setup
         uses: ./.github/actions/setup
         with:
@@ -27,6 +31,8 @@ jobs:
 
       - name: Test
         uses: ./.github/actions/test
+        with:
+          from: ${{ steps.set-shas.outputs.base }}
 
       # TODO:
       # - name: SonarCloud Scan
