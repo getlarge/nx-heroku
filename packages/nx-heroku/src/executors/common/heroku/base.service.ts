@@ -14,8 +14,12 @@ export abstract class HerokuBaseService<O extends BaseOptions> {
   /*
    * Expand options (interpolate variables starting with $)
    */
-  async validateOptions(): Promise<O> {
-    this.options = expandOptions(this.options);
+  static validateOptions<o extends BaseOptions>(options: o): o {
+    return expandOptions(options);
+  }
+
+  validateOptions(): O {
+    this.options = HerokuBaseService.validateOptions(this.options);
     return this.options;
   }
 

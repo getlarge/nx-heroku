@@ -6,14 +6,11 @@ export async function dynoCommand(options: {
   appName: AppName;
 }) {
   const { appName, command } = options;
-  const { stdout, stderr } = await exec(
-    `heroku dyno:${command} -a ${appName}`,
-    { encoding: 'utf-8' }
-  );
-  if (stderr) {
-    throw new Error(stderr);
-  }
-  return stdout;
+  const { stderr } = await exec(`heroku dyno:${command} -a ${appName}`, {
+    encoding: 'utf-8',
+  });
+  // nothing is sent to stdout even success message
+  return stderr;
 }
 
 export * from './addons';
@@ -21,5 +18,6 @@ export * from './apps';
 export * from './auth';
 export * from './config-vars';
 export * from './drains';
+export * from './error';
 export * from './members';
 export * from './webhooks';

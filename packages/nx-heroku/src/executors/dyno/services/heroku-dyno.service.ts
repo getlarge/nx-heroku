@@ -40,7 +40,7 @@ export class HerokuDynoService extends HerokuBaseService<DynoExecutorSchema> {
   }
 
   async run(): Promise<void> {
-    await this.validateOptions();
+    this.validateOptions();
     await this.setupHerokuAuth();
     const { appNamePrefix, command, config, debug } = this.options;
     const { projectName } = this.context;

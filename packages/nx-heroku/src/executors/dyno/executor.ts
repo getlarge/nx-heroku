@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { ExecutorContext } from '@nrwl/devkit';
+import { ExecutorContext, logger } from '@nrwl/devkit';
 import Container from 'typedi';
 
 import { EXECUTOR_CONTEXT } from '../common/constants';
@@ -21,6 +21,7 @@ export default async function runExecutor(
     await herokuDynoService.run();
     return { success: true };
   } catch (err) {
+    logger.error(err);
     return { success: false };
   } finally {
     await herokuDynoService.close();

@@ -1,13 +1,8 @@
 import type { ExecutorContext } from '@nrwl/devkit';
-import { toNumber } from 'lodash';
 import { Inject, Service } from 'typedi';
 
 import { Environment, EXECUTOR_CONTEXT } from '../../common/constants';
-import {
-  getGitEmail,
-  getGitLocalBranchName,
-  getGitUserName,
-} from '../../common/git';
+import { getGitEmail, getGitUserName } from '../../common/git';
 import { getAppName, getRemoteName } from '../../common/heroku';
 import { HerokuBaseService } from '../../common/heroku/base.service';
 import { Logger, LoggerInterface } from '../../common/logger';
@@ -31,17 +26,6 @@ export class HerokuDeployService extends HerokuBaseService<DeployExecutorSchema>
     this.logger.debug = options.debug;
   }
 
-  /*
-   * 1. expand options (interpolate variables starting with $)
-   * 2. Set default branch
-   * 3. set watch delay to milliseconds
-   */
-  async validateOptions(): Promise<DeployExecutorSchema> {
-    await super.validateOptions();
-    this.options.branch ??= await getGitLocalBranchName();
-    this.options.watchDelay = toNumber(this.options.watchDelay) * 1000;
-    return this.options;
-  }
   /*
    * variables are prefixed with HD to avoid conflicts with other env vars
    * this prefix is removed in 'mergeConfigVars' function
@@ -83,12 +67,11 @@ export class HerokuDeployService extends HerokuBaseService<DeployExecutorSchema>
     }
 
     await this.setupHerokuAuth();
-    this.logger.info('Created and wrote to ~/.netrc');
   }
 
   private async deployApp(environment: Environment): Promise<void> {
     const { projectName } = this.context;
-    const { appNamePrefix, branch, debug } = this.options;
+    const { appNamePrefix, debug } = this.options;
     const appName = getAppName({
       appNamePrefix,
       environment,
@@ -103,29 +86,15 @@ export class HerokuDeployService extends HerokuBaseService<DeployExecutorSchema>
       appName,
       remoteName,
     });
-    this.logger.log(
-      `Successfully deployed heroku app ${appName} from branch ${branch}.`
-    );
   }
 
   async run(): Promise<void> {
-    await this.validateOptions();
+    this.validateOptions();
     await this.setupHeroku();
-    const { config, branch } = this.options;
+    const { config } = this.options;
     for (const environment of config) {
       this.setEnvironmentVariables(environment);
-      try {
-        await this.deployApp(environment);
-      } catch (error) {
-        if (error.toString().includes("Couldn't find that app")) {
-          this.logger.warn(
-            `Skipped deploy to heroku app from branch ${branch}`
-          );
-        } else {
-          this.logger.error(error);
-          throw error;
-        }
-      }
+      await this.deployApp(environment);
     }
   }
 

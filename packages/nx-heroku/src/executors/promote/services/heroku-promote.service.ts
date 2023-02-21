@@ -31,17 +31,20 @@ export class HerokuPromoteService extends HerokuBaseService<PromoteExecutorSchem
     this.logger.debug = options.debug;
   }
 
-  async run(): Promise<void> {
-    await this.validateOptions();
-    await this.setupHerokuAuth();
+  private async checkPipelineExists(): Promise<string> {
+    const { appNamePrefix } = this.options;
+    const { projectName } = this.context;
+    const pipelineName = getPipelineName({ appNamePrefix, projectName });
+    if (!(await pipelineExists({ appNamePrefix, projectName }))) {
+      throw new Error(`Pipeline ${pipelineName} does not exist.`);
+    }
+    return pipelineName;
+  }
 
-    const {
-      appNamePrefix,
-      config: environment,
-      org,
-      variables,
-      debug,
-    } = this.options;
+  private async checkAppExistsInPipeline(
+    pipelineName: string
+  ): Promise<string> {
+    const { appNamePrefix, config: environment, org, debug } = this.options;
     const { projectName } = this.context;
     const appName = getAppName({
       appNamePrefix,
@@ -49,12 +52,6 @@ export class HerokuPromoteService extends HerokuBaseService<PromoteExecutorSchem
       environment,
       debug,
     });
-
-    const pipelineName = getPipelineName({ appNamePrefix, projectName });
-    if (!(await pipelineExists({ appNamePrefix, projectName }))) {
-      throw new Error(`Pipeline ${pipelineName} does not exist.`);
-    }
-
     if (!(await appExists({ appName }))) {
       this.logger.log(`Creating app ${appName}...`);
       await createApp({
@@ -68,7 +65,16 @@ export class HerokuPromoteService extends HerokuBaseService<PromoteExecutorSchem
         environment,
       });
     }
+    return appName;
+  }
 
+  async run(): Promise<void> {
+    this.validateOptions();
+    await this.setupHerokuAuth();
+    const { appNamePrefix, config: environment, variables } = this.options;
+    const { projectName } = this.context;
+    const pipelineName = await this.checkPipelineExists();
+    const appName = await this.checkAppExistsInPipeline(pipelineName);
     await mergeConfigVars({
       appName,
       variables,
@@ -77,7 +83,8 @@ export class HerokuPromoteService extends HerokuBaseService<PromoteExecutorSchem
     this.logger.log(`Promoting app ${appName}...`);
     await promoteApp({ appNamePrefix, projectName, environment });
 
-    await addMember({ appName, serviceUser: this.options.serviceUser });
+    this.options.serviceUser &&
+      (await addMember({ appName, serviceUser: this.options.serviceUser }));
     //? await addDrain({ appName, drain: this.options.drain });
     //? await addWebhook({ appName, webhook: this.options.webhook });
   }

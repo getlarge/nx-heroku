@@ -3,6 +3,7 @@ import { URL } from 'url';
 import isURL from 'validator/lib/isURL';
 
 import { exec, parseJsonString } from '../utils';
+import { HerokuError } from './error';
 
 export async function getDrains(appName: string): Promise<
   {
@@ -18,7 +19,7 @@ export async function getDrains(appName: string): Promise<
     encoding: 'utf-8',
   });
   if (stderr) {
-    logger.warn(stderr);
+    logger.warn(HerokuError.cleanMessage(stderr));
     return [];
   }
   return parseJsonString(stdout);
@@ -41,14 +42,14 @@ export async function addDrain(options: {
     urlObject.password = drain.password;
     url = urlObject.href;
   }
-
   const drains = await getDrains(appName);
   if (drains?.length && drains.find((el) => el.url === url)) {
     return 'found';
   }
+  // output success to stdout:  Successfully added drain ${drain.url}
   const { stderr } = await exec(`heroku drains:add ${url} -a ${appName}`);
   if (stderr) {
-    throw new Error(stderr);
+    throw new HerokuError(stderr);
   }
   return 'created';
 }

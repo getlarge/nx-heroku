@@ -72,6 +72,7 @@
           },
           "addonName": {
             "type": "string",
+            "description": "plans[].addon_service.name",
             "example": "heroku-postgresql:hobby-dev"
           }
         },

@@ -1,4 +1,5 @@
 import { exec, parseJsonString } from '../utils';
+import { HerokuError } from './error';
 
 export async function getMembers(appName: string): Promise<
   {
@@ -16,9 +17,12 @@ export async function getMembers(appName: string): Promise<
     privileges: { name: string; description: string }[];
   }[]
 > {
-  const { stdout } = await exec(`heroku access -a ${appName} --json`, {
+  const { stdout, stderr } = await exec(`heroku access -a ${appName} --json`, {
     encoding: 'utf-8',
   });
+  if (stderr && !stdout) {
+    throw new HerokuError(stderr);
+  }
   return parseJsonString(stdout);
 }
 
@@ -40,12 +44,10 @@ export async function addMember(options: {
     //? Should we replace user with heroku access:delete and heroku access:update when found ?
     return 'found';
   } else {
-    const { stderr } = await exec(
+    // success message is sent to stderr : Adding ${serviceUser} access to the app ${appName}
+    await exec(
       `heroku access:add ${serviceUser} -a ${appName} -p ${permissions}`
     );
-    if (stderr) {
-      throw new Error(stderr);
-    }
     return 'created';
   }
 }

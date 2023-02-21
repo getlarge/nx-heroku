@@ -2,6 +2,7 @@ import { logger } from '@nrwl/devkit';
 import isURL from 'validator/lib/isURL';
 
 import { exec, parseTable } from '../utils';
+import { HerokuError } from './error';
 
 export async function getWebhooks(
   appName: string
@@ -10,7 +11,7 @@ export async function getWebhooks(
     encoding: 'utf-8',
   });
   if (stderr) {
-    logger.warn(stderr);
+    logger.warn(HerokuError.cleanMessage(stderr));
     return [];
   }
   const res = parseTable(stdout);
@@ -22,6 +23,7 @@ export async function getWebhooks(
   });
 }
 
+// eslint-disable-next-line max-lines-per-function
 export async function addWebhook(options: {
   appName: string;
   webhook?: {
@@ -30,7 +32,7 @@ export async function addWebhook(options: {
     level: string;
     secret?: string;
   };
-}): Promise<'created' | 'updated'> {
+}): Promise<'created' | 'updated' | 'found'> {
   const {
     appName,
     webhook = {
@@ -40,32 +42,27 @@ export async function addWebhook(options: {
       secret: '',
     },
   } = options;
-
   if (!webhook?.url || !isURL(webhook.url)) return;
   const { url, level, secret } = webhook;
   const include = webhook.include.join(',');
   const webhooks = await getWebhooks(appName);
   const sameWebhookEndpoint = webhooks.find((hook) => hook.url === url);
   if (!sameWebhookEndpoint) {
-    const { stderr } = await exec(
+    // output success to stderr : Adding webhook to ${appName}... done
+    await exec(
       `heroku webhooks:add -u ${url} -i ${include} -l ${level} -s ${secret} -a ${appName}`
     );
-    if (stderr) {
-      throw new Error(stderr);
-    }
     return 'created';
   } else if (
     sameWebhookEndpoint.id &&
     (sameWebhookEndpoint.include !== include ||
       sameWebhookEndpoint.level !== level)
   ) {
-    const { stderr } = await exec(
+    // output success to stderr : Updating webhook ${sameWebhookEndpoint.id} for ${appName}... done
+    await exec(
       `heroku webhooks:update ${sameWebhookEndpoint.id} -u ${url} -i ${include} -l ${level} -s ${secret} -a ${appName}`
     );
-    if (stderr) {
-      throw new Error(stderr);
-    }
     return 'updated';
   }
-  return null;
+  return 'found';
 }

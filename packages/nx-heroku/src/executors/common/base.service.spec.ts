@@ -47,7 +47,7 @@ describe('HerokuBaseService', () => {
     expect(existsSync(HEROKU_AUTH_FILE)).toBeFalsy();
   });
 
-  it('can expand options from environment variables', async () => {
+  it('can expand options from environment variables', () => {
     const opts = {
       ...options,
       test: '${EXPANDED_VALUE}',
@@ -56,7 +56,7 @@ describe('HerokuBaseService', () => {
     process.env.EXPANDED_VALUE = 'expanded';
     const service = new MockHerokuBaseService(opts, logger);
     //
-    const mutatedOptions = await service.validateOptions();
+    const mutatedOptions = service.validateOptions();
     //
     expect(mutatedOptions.test).toBe('expanded');
     expect(mutatedOptions.nested.test).toBe('expanded');

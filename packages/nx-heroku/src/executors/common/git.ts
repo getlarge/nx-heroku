@@ -30,3 +30,14 @@ export async function getGitLocalBranchName(): Promise<string> {
   }
   return stdout?.trim();
 }
+
+export async function getGitRemoteBranch(options: {
+  remoteName: string;
+}): Promise<string> {
+  const { remoteName } = options;
+  const { stdout } = await exec(
+    `git remote show ${remoteName} | grep 'HEAD' | cut -d':' -f2 | sed -e 's/^ *//g' -e 's/ *$//g'`,
+    { encoding: 'utf-8' }
+  );
+  return stdout?.trim();
+}

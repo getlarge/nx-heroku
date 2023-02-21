@@ -2,6 +2,7 @@
 import axios from 'axios';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { readFile, writeFile } from 'fs/promises';
+import { toNumber } from 'lodash';
 import { join } from 'path';
 import { Inject, Service } from 'typedi';
 
@@ -11,6 +12,7 @@ import {
   HEROKU_BUILDPACK_STATIC,
   STATIC_JSON,
 } from '../../common/constants';
+import { getGitLocalBranchName, getGitRemoteBranch } from '../../common/git';
 import {
   addAddons,
   addAppToPipeline,
@@ -18,10 +20,14 @@ import {
   addMember,
   addWebhook,
   createApp,
+  createAppRemote,
+  createPipeline,
   getPipelineName,
+  HerokuError,
   mergeConfigVars,
   pipelineExists,
 } from '../../common/heroku';
+import { HerokuBaseService } from '../../common/heroku/base.service';
 import { Logger, LoggerInterface } from '../../common/logger';
 import { exec, sleep } from '../../common/utils';
 import { DeployExecutorSchema, ExtendedDeployExecutorSchema } from '../schema';
@@ -37,18 +43,29 @@ export class HerokuAppService {
     this.logger.debug = options.debug;
   }
 
+  /*
+   * 1. expand options (interpolate variables starting with $)
+   * 2. Set default branch
+   * 3. set watch delay to milliseconds
+   */
+  async validateOptions() {
+    this.options = HerokuBaseService.validateOptions(this.options);
+    this.options.branch ??= await getGitLocalBranchName();
+    this.options.watchDelay = toNumber(this.options.watchDelay) * 1000;
+  }
+
   async run(
     options: Pick<
       ExtendedDeployExecutorSchema,
       'appName' | 'environment' | 'projectName' | 'remoteName'
     >
   ): Promise<void> {
+    await this.validateOptions();
     const { appName, projectName } = options;
     const extendedOptions: ExtendedDeployExecutorSchema = {
       ...this.options,
       ...options,
     };
-
     this.logger.info(`Deploying ${projectName} on ${appName} Heroku app...`);
     await new HerokuApp(extendedOptions, this.logger).run();
   }
@@ -71,26 +88,30 @@ export class HerokuAppService {
  * 13. Run healthcheck (optional)
  */
 class HerokuApp {
+  // TODO: add property appsDir => context.nxJsonConfiguration.workspaceLayout?.appsDir ??= 'apps';
+
   constructor(
     public options: ExtendedDeployExecutorSchema,
     public logger: LoggerInterface
   ) {}
 
   /*
-   * @description create Procfile if it does not exist
+   * @description create Procfile from options
    */
   private async createProcfile(): Promise<void> {
     const { procfile, projectName } = this.options;
     if (procfile) {
-      await writeFile(
-        join(process.cwd(), `apps/${projectName}/Procfile`),
-        procfile
-      );
-      // TODO: allow for custom commit message
-      await exec(
-        `git add -A && git commit -m "ci(${projectName}): add Procfile" -n --no-gpg-sign`
-      );
-      this.logger.info('Written Procfile with custom configuration');
+      const procfilePath = `apps/${projectName}/Procfile`;
+      await writeFile(join(process.cwd(), procfilePath), procfile);
+      try {
+        //? allow custom commit message
+        await exec(
+          `git add ${procfilePath} && git commit -m "ci(${projectName}): add Procfile" -n --no-gpg-sign`
+        );
+        this.logger.info('Written Procfile with custom configuration');
+      } catch (err) {
+        // there is nothing to commit
+      }
     }
   }
 
@@ -111,9 +132,9 @@ class HerokuApp {
       if (destBuildPackFile === srcBuildPackFile) return;
 
       await writeFile(destPath, srcBuildPackFile);
-      // TODO: allow for custom commit message
+      //? allow for custom commit message
       await exec(
-        `git add -f ${buildPackFile} && git commit -m "ci(${projectName}): add ${buildPackFile}" -n --no-gpg-sign`
+        `git add ${buildPackFile} && git commit -m "ci(${projectName}): add ${buildPackFile}" -n --no-gpg-sign`
       );
       this.logger.info(`Written ${buildPackFile} with custom configuration`);
     }
@@ -151,18 +172,19 @@ class HerokuApp {
 
   private async addRemote(): Promise<boolean> {
     const { appName, org, remoteName } = this.options;
-    // TODO: catch error when gitconfig could not be locked that occurs during parallel deployment
-    const { stderr } = await exec(
-      `heroku git:remote --app ${appName} --remote ${remoteName}`
-    );
-    if (stderr) {
-      await createApp({
-        appName,
-        org,
-        remoteName,
-      });
-      this.logger.info(`Created app ${appName} on git remote ${remoteName}`);
-      return true;
+    try {
+      await createAppRemote({ appName, remoteName });
+    } catch (error) {
+      if (error instanceof HerokuError) {
+        await createApp({
+          appName,
+          org,
+          remoteName,
+        });
+        this.logger.info(`Created app ${appName} on git remote ${remoteName}`);
+        return true;
+      }
+      throw error;
     }
     this.logger.info(`Added git remote ${remoteName}`);
     return false;
@@ -189,9 +211,7 @@ class HerokuApp {
         this.logger.warn(
           `Pipeline ${pipelineName} not found, it will be created at the next step`
         );
-        await exec(
-          `heroku pipelines:create ${pipelineName} --app ${appName} --stage ${environment} --team ${org}`
-        );
+        await createPipeline({ appName, environment, org, pipelineName });
         if (repositoryName) {
           await exec(
             `heroku pipelines:connect ${pipelineName} -r ${org}/${repositoryName}`
@@ -234,13 +254,11 @@ class HerokuApp {
       webhook: this.options.webhook,
     });
     if (response === 'created') {
-      this.logger.warn(
-        `Webhook not found for ${appName}, it will be registered at the next step.`
-      );
+      this.logger.warn(`Webhook has been created for app ${appName}.`);
     } else if (response === 'updated') {
-      this.logger.warn(
-        `Webhook found for ${appName} but parameters changed, it will be updated at the next step.`
-      );
+      this.logger.warn(`Webhook has been updated for app ${appName}.`);
+    } else if (response === 'found') {
+      this.logger.warn(`Webhook already created for app ${appName}.`);
     }
   }
 
@@ -251,21 +269,10 @@ class HerokuApp {
       drain: this.options.drain,
     });
     if (response === 'created') {
-      this.logger.warn(
-        `Did not find drain for app ${appName}, it will be added at the next step.`
-      );
+      this.logger.warn(`Drain has been created for app ${appName}.`);
     } else if (response === 'found') {
-      this.logger.info(`Found drain for app ${appName}.`);
+      this.logger.warn(`Drain already created for app ${appName}.`);
     }
-  }
-
-  private async getRemoteBranch(): Promise<string> {
-    const { remoteName } = this.options;
-    const { stdout } = await exec(
-      `git remote show ${remoteName} | grep 'HEAD' | cut -d':' -f2 | sed -e 's/^ *//g' -e 's/ *$//g'`,
-      { encoding: 'utf-8' }
-    );
-    return stdout?.trim();
   }
 
   // when resetting Heroku repo, consider long watchDelay as the upload might take a while
@@ -298,20 +305,27 @@ class HerokuApp {
     }
 
     const push = spawn('git', args, { signal });
-    push.stdout.setEncoding('utf-8');
-    push.stdout.on('data', (data) => this.logger.info(data));
-    push.stderr.setEncoding('utf-8');
-    push.stderr.on('data', (data) => this.logger.error(data));
-
+    push.stdout
+      .setEncoding('utf-8')
+      .on('data', (data) => this.logger.info(data));
+    push.stderr
+      .setEncoding('utf-8')
+      .on('data', (data) => this.logger.info(data));
     return push;
   }
 
   // eslint-disable-next-line max-lines-per-function
   private async deploy(): Promise<void> {
-    const { appName, branch, resetRepo = false, watchDelay = 0 } = this.options;
+    const {
+      appName,
+      branch,
+      remoteName,
+      resetRepo = false,
+      watchDelay = 0,
+    } = this.options;
     if (resetRepo) {
-      const remoteBranch = await this.getRemoteBranch();
-      this.resetAppRepo(appName, remoteBranch);
+      const remoteBranch = await getGitRemoteBranch({ remoteName });
+      await this.resetAppRepo(appName, remoteBranch);
     }
     this.logger.info(`Pushing to Heroku app ${appName} on branch ${branch}`);
     // Wait for [watchDelay] seconds once the build started to ensure it works and kill child process
@@ -327,18 +341,18 @@ class HerokuApp {
         }
       }, watchDelay);
 
-      function cleanEvents() {
+      const cleanEvents = () => {
         push.stdout.removeAllListeners();
         push.stderr.removeAllListeners();
         push.removeAllListeners();
         clearTimeout(timer);
-      }
+      };
 
-      function done(
+      const done = (
         code: number,
         sig: NodeJS.Signals,
         event: 'closed' | 'exited'
-      ) {
+      ) => {
         this.logger.info(`Build process ${event} ${code} ${sig}`);
         cleanEvents();
         if (code === 0) {
@@ -346,7 +360,7 @@ class HerokuApp {
         } else {
           reject(new Error(`Failed to deploy app ${appName}: ${code} ${sig}`));
         }
-      }
+      };
 
       push
         .on('close', (code, sig) => done(code, sig, 'closed'))
@@ -360,6 +374,9 @@ class HerokuApp {
           }
         });
     });
+    this.logger.log(
+      `Successfully deployed heroku app ${appName} from branch ${branch}.`
+    );
   }
 
   private async healthcheckFailed(): Promise<void> {
@@ -367,13 +384,12 @@ class HerokuApp {
     if (rollbackOnHealthcheckFailed) {
       await exec(`heroku rollback --app ${appName}`);
       throw new Error(
-        'Health Check Failed. Error deploying Server. Deployment has been rolled back. Please check your logs on Heroku to try and diagnose the problem'
-      );
-    } else {
-      throw new Error(
-        'Health Check Failed. Error deploying Server. Please check your logs on Heroku to try and diagnose the problem'
+        'Health Check Failed. Error deploying Server. Deployment has been rolled back. Please check your logs on Heroku to try and diagnose the problem.'
       );
     }
+    throw new Error(
+      'Health Check Failed. Error deploying Server. Please check your logs on Heroku to try and diagnose the problem.'
+    );
   }
 
   private async runHealthcheck(): Promise<void> {
@@ -387,9 +403,7 @@ class HerokuApp {
           method: 'get',
           url: healthcheck,
           responseType: 'text',
-          validateStatus(status) {
-            return status >= 200 && status < 300;
-          },
+          validateStatus: (status) => status >= 200 && status < 300,
         });
         if (checkString && checkString !== body) {
           throw new Error('Failed to match the `checkString`');

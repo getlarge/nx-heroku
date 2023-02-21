@@ -7,13 +7,16 @@ import { ASCII_COLORS_REGEX } from './constants';
 
 export const exec = promisify(cbBasedExec);
 
+export function removeConsoleOutputColors(stdout: string) {
+  return stdout?.trim()?.replace(ASCII_COLORS_REGEX, '')?.trim();
+}
+
 export function parseJsonString(stdout: string) {
-  const res = stdout?.replace(ASCII_COLORS_REGEX, '')?.trim();
-  return JSON.parse(res);
+  return JSON.parse(removeConsoleOutputColors(stdout));
 }
 
 export function parseTable(stdout: string) {
-  return stdout?.trim()?.replace(ASCII_COLORS_REGEX, '')?.split('\n');
+  return removeConsoleOutputColors(stdout)?.split('\n');
 }
 
 export function sleep(ms: number) {

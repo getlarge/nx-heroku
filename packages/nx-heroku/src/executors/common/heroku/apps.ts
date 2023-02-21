@@ -7,6 +7,7 @@ import {
   HerokuEnvironment,
 } from '../constants';
 import { exec, parseJsonString } from '../utils';
+import { HerokuError } from './error';
 
 export type AppName =
   | `${string}-${HerokuEnvironment}`
@@ -48,7 +49,7 @@ export function getAppName(options: {
   return appName;
 }
 
-export function getRemoteName(appName: string): string {
+export function getRemoteName(appName: string): `heroku-${string}` {
   return `heroku-${appName}`;
 }
 
@@ -91,7 +92,7 @@ export async function pipelineExists(options: {
   const { stdout, stderr } = await exec(`heroku pipelines --json`, {
     encoding: 'utf-8',
   });
-  stderr && logger.error(new Error(stderr));
+  stderr && logger.error(new HerokuError(stderr));
   const pipelines = parseJsonString(stdout).map((pipeline) => pipeline?.name);
   return pipelines.includes(pipelineName);
 }
@@ -101,7 +102,9 @@ export async function appExists(options: {
 }): Promise<boolean> {
   try {
     // check if appName exists, throws an error if it doesn't
-    const { stderr } = await exec(`heroku apps:info -a ${options.appName}`, {});
+    const { stderr } = await exec(`heroku apps:info -a ${options.appName}`, {
+      encoding: 'utf-8',
+    });
     if (stderr) {
       logger.warn(stderr);
       return false;
@@ -116,14 +119,45 @@ export async function createApp(options: {
   appName: string;
   remoteName: string;
   org: string;
-}): Promise<string> {
-  const { appName, remoteName, org } = options;
-  const { stdout, stderr } = await exec(
-    `heroku create ${appName} --remote ${remoteName} --region eu --stack ${HEROKU_STACK} --team ${org}`,
+  region?: string;
+}): Promise<{ stdout: string; stderr: string }> {
+  const { appName, remoteName, org, region = 'eu' } = options;
+  // outputs on success to stderr : Creating ${appName}... done, region is ${region}, stack is ${HEROKU_STACK}
+  // outputs on success to stdout : https://<app-name>.herokuapp.com/ | https://git.heroku.com/<app-name>.git
+  return exec(
+    `heroku create ${appName} --remote ${remoteName} --region ${region} --stack ${HEROKU_STACK} --team ${org}`,
     { encoding: 'utf-8' }
   );
-  stderr && logger.error(new Error(stderr));
-  return stdout;
+}
+
+export async function createAppRemote(options: {
+  appName: string;
+  remoteName: string;
+}): Promise<void> {
+  const { appName, remoteName } = options;
+  try {
+    await exec(`heroku git:remote --app ${appName} --remote ${remoteName}`, {
+      encoding: 'utf-8',
+    });
+  } catch (error) {
+    // TODO: catch error when gitconfig could not be locked that occurs during parallel deployment
+    if (error.toString().includes("Couldn't find that app")) {
+      throw new HerokuError(`Couldn't find that app. ${error.toString()}`);
+    }
+    throw error;
+  }
+}
+
+export async function createPipeline(options: {
+  appName: string;
+  pipelineName: string;
+  environment: Environment;
+  org: string;
+}): Promise<void> {
+  const { appName, environment, org, pipelineName } = options;
+  await exec(
+    `heroku pipelines:create ${pipelineName} --app ${appName} --stage ${environment} --team ${org}`
+  );
 }
 
 export async function addAppToPipeline(options: {
@@ -136,7 +170,7 @@ export async function addAppToPipeline(options: {
     `heroku pipelines:add ${pipelineName} --app ${appName} --stage ${environment}`,
     { encoding: 'utf-8' }
   );
-  stderr && logger.error(new Error(stderr));
+  stderr && logger.warn(HerokuError.cleanMessage(stderr));
 }
 
 export async function promoteApp(options: {
@@ -159,10 +193,10 @@ export async function promoteApp(options: {
     environment,
     debug,
   });
-
+  // outputs on success to stdout : Fetching app info... \n Fetching apps from ${pipeline}..
   const { stdout, stderr } = await exec(
     `heroku pipelines:promote --app ${sourceAppName} --to ${appName}`
   );
-  stderr && logger.error(new Error(stderr));
+  stderr && logger.warn(HerokuError.cleanMessage(stderr));
   return stdout;
 }

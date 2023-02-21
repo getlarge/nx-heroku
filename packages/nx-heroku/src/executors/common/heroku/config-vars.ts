@@ -65,12 +65,9 @@ export async function setConfigVars(options: {
 }): Promise<void> {
   const { appName, configVars = [] } = options;
   if (configVars.length > 0) {
-    const { stderr } = await exec(
-      `heroku config:set --app=${appName} ${configVars.join(' ')}`
-    );
-    if (stderr) {
-      throw new Error(stderr);
-    }
+    // outputs variables set to stdout  key1: value1 \n key2: value2
+    // outputs success message to stderr  Setting <configVars keys comma separated> and restarting ${appName}...
+    await exec(`heroku config:set --app=${appName} ${configVars.join(' ')}`);
   }
 }
 

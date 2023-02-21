@@ -1,6 +1,7 @@
 import { logger } from '@nrwl/devkit';
 
 import { exec, parseJsonString } from '../utils';
+import { HerokuError } from './error';
 
 export async function getAddons(
   appName: string
@@ -11,7 +12,7 @@ export async function getAddons(
   if (!stderr) {
     return parseJsonString(stdout);
   }
-  logger.warn(stderr);
+  logger.warn(HerokuError.cleanMessage(stderr));
   return [];
 }
 
@@ -22,23 +23,21 @@ export async function addAddons(options: {
   const { addons = [], appName } = options;
   if (addons?.length) {
     const registeredAddons = await getAddons(appName);
-
     const promises = addons.map(async (addon) => {
       const { addonAlias, addonName: addonPlanName } = addon;
+      // addonPlanName contains service name and plan name separated by :
       const addonName = addonPlanName.split(':').shift();
       const hasAddon = registeredAddons.some(
         (el) => el.addon_service.name === addonName
       );
       if (!hasAddon) {
-        const { stderr } = await exec(
+        // output success to stdout : Your add-on is being provisioned. It will be available shortly ...
+        // output sucess to stderr : Creating ${addonPlanName} on ${appName}...
+        await exec(
           `heroku addons:create ${addonPlanName} -a ${appName} --as ${addonAlias}`
         );
-        if (stderr) {
-          throw new Error(stderr);
-        }
       }
     });
-
     await Promise.all(promises);
   }
 }
