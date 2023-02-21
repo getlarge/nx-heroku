@@ -12,6 +12,11 @@ on:
           - path
           - minor
           - major
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-release
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
