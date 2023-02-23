@@ -10,16 +10,29 @@ Run `nx build nx-heroku` to build the library.
 
 Run `nx test nx-heroku` to execute the unit tests via [Jest](https://jestjs.io).
 
+---
+
+## Conventions
+
+The application names deployed on Heroku are composed with the pattern `${appPrefixName}-${appName}-${environment}`.
+Due to some length limitations (32 characters), the environment name is shortened and the application name might shorten as well.
+
+Examples:
+
+- `aloes-my-service-dev`
+- `aloes-frontend-staging`
+- `aloes-myapp-prod`
+
+This logic is applied in this [Heroku helpers module](./src/executors/common/heroku/apps.ts)
+
 ## Deploying to Heroku
 
 To deploy your application to Heroku, you need to have the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) installed.
-
-When running the executor for the first time, you will be prompted to login to Heroku. You can also login manually by running `heroku login`.
 In Github Actions, it comes already installed.
 
-### Deploy
+When running the executor, it will login to Heroku with the credentials (`email`, `apiKey`) provided via the executors options.
 
-#### Generate target
+### Generate target
 
 To generate a target for your application, run the following command:
 
@@ -28,6 +41,66 @@ npx nx g @aloes/nx-heroku:deploy --projectName=my-app
 ```
 
 This will generate a `deploy` target in your `project.json` file.
+
+### Execute target
+
+The [`nx-heroku:deploy`](./src//executors/deploy/executor.ts) executor allows to deploy an Nx application to a targeted Heroku app. The deployment will be done for each `environment` declared via the option `config` (default: ['development'])
+Variables prefixed by `HD_` will be added (without the prefix) to the Heroku app config automatically.
+
+The environment variables `HD_PROJECT_NAME`,`HD_PROJECT_ENV`, `HD_NODE_ENV` and `HD_PROCFILE` will automatically be defined based on the project name and environment being deployed.
+`PROCFILE` is required when using [multi-procfile buildpack](https://elements.heroku.com/buildpacks/heroku/heroku-buildpack-multi-procfile), it should be defined in each Heroku app to indicate the Procfile path for the given project.
+Custom buildpacks can be provided by using `buildpacks` option.
+
+If the Heroku app doesn't exist, it will be created and named after the pattern described in [Conventions](#conventions).
+
+- `appName` is set with `-p` option and needs to match between the project path under `apps`.
+- `prefix` defaults to `s1` and can be customized via `-P` options
+- `env` will be automatically defined based on `-c` option
+
+For the given example project config:
+
+```json
+{
+  "name": "frontend",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/frontend/src",
+  "targets": {
+    ...,
+    "deploy": {
+      "executor": "@aloes/nx-heroku:deploy",
+      "options": {
+        "appNamePrefix": "aloes",
+        "org": "s1seven",
+        "buildPacks": [
+          "heroku/nodejs",
+          "heroku-community/multi-procfile",
+          "heroku-community/nginx"
+        ],
+        "variables": {
+          "NGINX_APP_ROOT": "dist/apps/frontend",
+          "YARN2_SKIP_PRUNING": "true"
+        },
+        "procfile": "web: bin/start-nginx-solo",
+        "useForce": true,
+        "debug": true
+      }
+    },
+  }
+}
+
+```
+
+You can run the deployment with :
+
+```bash
+export HEROKU_API_KEY=<your_heroku_api_key>
+export HEROKU_EMAIL=<your_heroku_account_email>
+
+npx nx run deploy frontend --config 'development,staging' --apiKey $HEROKU_API_KEY --email $HEROKU_EMAIL
+```
+
+---
 
 ### Hooks
 
