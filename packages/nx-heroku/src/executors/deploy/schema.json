@@ -34,17 +34,17 @@
       "example": "my-app"
     },
     "org": {
-      "description": "Heroku team name and organization name in Github",
+      "description": "Heroku team name and organization name in Github.",
       "type": "string",
       "example": "my-org"
     },
     "serviceUser": {
-      "description": "Heroku team member used to automate deployment",
+      "description": "Heroku team member used to automate deployment and manage|operate the deployed application. This user will be added to the app as a collaborator.",
       "format": "email",
       "type": "string"
     },
     "variables": {
-      "description": "Heroku config variables",
+      "description": "Heroku config variables, see https://devcenter.heroku.com/articles/config-vars.",
       "type": "object",
       "additionalProperties": {
         "type": "string"
@@ -52,7 +52,7 @@
       "example": { "SERVER_URL": "value", "DB_URL": "value" }
     },
     "buildPacks": {
-      "description": "Ordered list of builpacks that should be added, see https://devcenter.heroku.com/articles/using-multiple-buildpacks-for-an-app",
+      "description": "Ordered list of builpacks that should be added, see https://devcenter.heroku.com/articles/using-multiple-buildpacks-for-an-app.",
       "default": [],
       "type": "array",
       "items": {
@@ -61,7 +61,7 @@
       "example": ["heroku/nodejs", "heroku-community/multi-procfile"]
     },
     "addons": {
-      "description": "List of addons that should be present, in the format <addon_plan_name>#<alias> where alias is optional.",
+      "description": "List of addons that should be present, in the format <addon_plan_name>#<alias> where alias is optional, see https://elements.heroku.com/addons.",
       "type": "array",
       "items": {
         "type": "object",
@@ -81,7 +81,7 @@
       "minItems": 1
     },
     "webhook": {
-      "description": "Webhook to register on Heroku",
+      "description": "Webhook to register on Heroku, see https://devcenter.heroku.com/articles/app-webhooks",
       "type": "object",
       "properties": {
         "url": {
@@ -123,7 +123,7 @@
       "required": ["url", "include", "level", "secret"]
     },
     "drain": {
-      "description": "Log drain to register on Heroku",
+      "description": "Log drain to register on Heroku, see https://devcenter.heroku.com/articles/log-drains",
       "type": "object",
       "properties": {
         "url": {

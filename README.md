@@ -4,8 +4,13 @@ This library was generated with [Nx](https://nx.dev).
 
 ## Conventions
 
-The application names deployed on Heroku are composed with the pattern `${appPrefixName}-${appName}-${environment}`.
-Due to some length limitations (32 characters), the environment name is shortened and the application name might shorten as well.
+The application names deployed on Heroku are composed with the pattern `${appPrefixName}-${projectName}-${environment}`, where
+
+- `appPrefixName` is the prefix name of the Heroku app, it can be customized via the `appNamePrefix` option.
+- `projectName` is the name of the Nx project.
+- `environment` is the Heroku pipeline stage (development, staging or production), it can be customized via the `config` option.
+
+Due to some length limitations (32 characters), the environment name is shortened and the application name might be shortened as well.
 
 Examples:
 
@@ -18,7 +23,7 @@ This logic is applied in this [Heroku helpers module](./packages/nx-heroku/src/e
 ## Deploying to Heroku
 
 To deploy your application to Heroku, you need to have the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) installed.
-In Github Actions, it comes already installed.
+In Github Actions, it comes already installed in the runners.
 
 When running the executor, it will login to Heroku with the credentials (`email`, `apiKey`) provided via the executors options.
 
@@ -27,19 +32,22 @@ When running the executor, it will login to Heroku with the credentials (`email`
 To generate a target for your application, run the following command:
 
 ```bash
-npx nx g @aloes/nx-heroku:deploy --projectName=my-app
+npx nx g @aloes/nx-heroku:deploy --projectName=my-app --org=your-heroku-team --appNamePrefix=your-app-prefix
 ```
 
 This will generate a `deploy` target in your `project.json` file.
 
 ### Execute target
 
-The [`nx-heroku:deploy`](./packages/nx-heroku/src//executors/deploy/executor.ts) executor allows to deploy an Nx application to a targeted Heroku app. The deployment will be done for each `environment` declared via the option `config` (default: ['development'])
+The [`nx-heroku:deploy`](./packages/nx-heroku/src//executors/deploy/executor.ts) executor allows to deploy an Nx application to a targeted Heroku app. The deployment will be done for each pipeline stage declared via the option `config` (default: ['development'])
 Variables prefixed by `HD_` will be added (without the prefix) to the Heroku app config automatically.
 
 The environment variables `HD_PROJECT_NAME`,`HD_PROJECT_ENV`, `HD_NODE_ENV` and `HD_PROCFILE` will automatically be defined based on the project name and environment being deployed.
 `PROCFILE` is required when using [multi-procfile buildpack](https://elements.heroku.com/buildpacks/heroku/heroku-buildpack-multi-procfile), it should be defined in each Heroku app to indicate the Procfile path for the given project.
-Custom buildpacks can be provided by using `buildpacks` option.
+
+Extra buildpacks can be provided by using `buildPacks` option, they will be installed in the order they are provided in the array.
+
+You can have a look at the [schema](./packages/nx-heroku/src/executors/deploy/schema.json) of the executor to see all the options available.
 
 If the Heroku app doesn't exist, it will be created and named after the pattern described in [Conventions](#conventions).
 
@@ -61,7 +69,7 @@ For the given example project config:
       "executor": "@aloes/nx-heroku:deploy",
       "options": {
         "appNamePrefix": "aloes",
-        "org": "s1seven",
+        "org": "aloes",
         "buildPacks": [
           "heroku/nodejs",
           "heroku-community/multi-procfile",
@@ -108,7 +116,7 @@ For example, we can use the `heroku-postbuild` script to provide our own applica
 }
 ```
 
-I will provide some examples based on my experience with Nx apps deployment on Heroku
+I will provide some examples based on my experience with Nx apps deployment on Heroku.
 
 #### Custom build process
 
