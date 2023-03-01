@@ -2,7 +2,12 @@ import type { ExecutorContext } from '@nrwl/devkit';
 import { Inject, Service } from 'typedi';
 
 import { Environment, EXECUTOR_CONTEXT } from '../../common/constants';
-import { getGitEmail, getGitUserName } from '../../common/git';
+import {
+  getGitEmail,
+  getGitUserName,
+  setGitEmail,
+  setGitUserName,
+} from '../../common/git';
 import { getAppName, getRemoteName } from '../../common/heroku';
 import { HerokuBaseService } from '../../common/heroku/base.service';
 import { Logger, LoggerInterface } from '../../common/logger';
@@ -100,12 +105,11 @@ export class HerokuDeployService extends HerokuBaseService<DeployExecutorSchema>
 
   async close(): Promise<void> {
     try {
-      this.previousGitConfig.name &&
-        (await exec(`git config user.name "${this.previousGitConfig.name}"`));
-      this.previousGitConfig.email &&
-        (await exec(`git config user.email "${this.previousGitConfig.email}"`));
-
       await this.tearDownHerokuAuth();
+      this.previousGitConfig.name &&
+        (await setGitUserName(this.previousGitConfig.name));
+      this.previousGitConfig.email &&
+        (await setGitEmail(this.previousGitConfig.email));
     } catch (error) {
       this.logger.error(error);
     }

@@ -1,4 +1,5 @@
 import { logger } from '@nrwl/devkit';
+import { ExecException } from 'child_process';
 
 import {
   Environment,
@@ -111,6 +112,8 @@ export async function appExists(options: {
     }
     return true;
   } catch (e) {
+    const ex = e as ExecException;
+    logger.warn(ex.message);
     return false;
   }
 }
@@ -141,7 +144,8 @@ export async function createAppRemote(options: {
     });
   } catch (error) {
     // TODO: catch error when gitconfig could not be locked that occurs during parallel deployment
-    if (error.toString().includes("Couldn't find that app")) {
+    const ex = error as ExecException;
+    if (ex.toString().includes("Couldn't find that app")) {
       throw new HerokuError(`Couldn't find that app. ${error.toString()}`);
     }
     throw error;

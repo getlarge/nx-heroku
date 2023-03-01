@@ -14,6 +14,7 @@ export const HEROKU_BUILDPACK_APT = 'heroku-community/apt';
 export const HEROKU_ENV_VARIABLES_PREFIX = 'HD_';
 export const STATIC_JSON = 'static.json';
 export const APTFILE = 'Aptfile';
+export const PROCFILE = 'Procfile';
 export const DEFAULT_GIT_USERNAME = 'Heroku-Deploy';
 export const ASCII_COLORS_REGEX =
   // eslint-disable-next-line no-control-regex

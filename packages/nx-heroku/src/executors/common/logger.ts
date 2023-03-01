@@ -1,4 +1,5 @@
 import { logger } from '@nrwl/devkit';
+import type { ExecException } from 'child_process';
 import Container, { Constructable } from 'typedi';
 
 export interface LoggerInterface {
@@ -9,8 +10,34 @@ export interface LoggerInterface {
   error(message: string | Error | unknown): void;
 }
 
+function isExecException(error: unknown): error is ExecException {
+  return (error as ExecException).code !== undefined;
+}
+
 export class ConsoleLogger implements LoggerInterface {
   private _debug = false;
+
+  static log(message: string) {
+    logger.log(message);
+  }
+
+  static info(message: string) {
+    logger.info(message);
+  }
+
+  static warn(message: string | unknown) {
+    logger.warn(message);
+  }
+
+  static error(error: string | Error | unknown) {
+    if (error instanceof Error) {
+      logger.error(error.message);
+    }
+    if (isExecException(error)) {
+      logger.error(`code: ${error.code}`);
+    }
+    logger.error(error);
+  }
 
   get debug() {
     return this._debug;
@@ -21,19 +48,21 @@ export class ConsoleLogger implements LoggerInterface {
   }
 
   log(message: string) {
-    this.debug && logger.log(message);
+    this.debug && ConsoleLogger.log(message);
   }
 
   info(message: string) {
-    this.debug && logger.info(message);
+    this.debug && ConsoleLogger.info(message);
   }
 
   warn(message: string | unknown) {
-    this.debug && logger.warn(message);
+    this.debug && ConsoleLogger.warn(message);
   }
 
-  error(message: string | Error | unknown) {
-    this.debug && logger.error(message);
+  error(error: string | Error | unknown) {
+    if (this.debug) {
+      ConsoleLogger.error(error);
+    }
   }
 }
 

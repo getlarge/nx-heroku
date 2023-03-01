@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { ExecutorContext, logger } from '@nrwl/devkit';
+import type { ExecutorContext } from '@nrwl/devkit';
 import Container from 'typedi';
 
 import { EXECUTOR_CONTEXT } from '../common/constants';
@@ -18,10 +18,10 @@ export default async function runExecutor(
   const herokuPromoteService = Container.get(HerokuPromoteService);
   try {
     await herokuPromoteService.run();
-    logger.info('Promotion successful.');
+    herokuPromoteService.logger.info('Promotion successful.');
     return { success: true };
-  } catch (err) {
-    logger.error(err);
+  } catch (error) {
+    herokuPromoteService.logger.error(error);
     return { success: false };
   } finally {
     await herokuPromoteService.close();

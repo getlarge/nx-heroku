@@ -30,7 +30,7 @@ export async function removeCatFile(): Promise<void> {
   try {
     await rm(HEROKU_AUTH_FILE);
   } catch (error) {
-    if (error.code === 'ENOENT') {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
       return;
     }
     throw error;

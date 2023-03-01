@@ -1,24 +1,51 @@
 import { DEFAULT_GIT_USERNAME } from './constants';
+import { ConsoleLogger } from './logger';
 import { exec } from './utils';
 
-export async function getGitUserName(): Promise<string> {
-  const { stdout, stderr } = await exec(`git config user.name`, {
-    encoding: 'utf-8',
-  });
-  if (stderr) {
-    throw new Error(stderr);
+export async function getGitUserParam(
+  key: 'email' | 'name',
+  defaultValue?: string
+): Promise<string> {
+  try {
+    const { stdout, stderr } = await exec(`git config user.${key}`, {
+      encoding: 'utf-8',
+    });
+    if (stderr) {
+      throw new Error(stderr);
+    }
+    return stdout?.trim() || defaultValue;
+  } catch (e) {
+    ConsoleLogger.error(e);
+    return defaultValue;
   }
-  return stdout?.trim() || DEFAULT_GIT_USERNAME;
 }
 
-export async function getGitEmail(): Promise<string> {
-  const { stdout, stderr } = await exec(`git config user.email`, {
+export function getGitUserName(): Promise<string> {
+  return getGitUserParam('name', DEFAULT_GIT_USERNAME);
+}
+
+export function getGitEmail(): Promise<string> {
+  return getGitUserParam('email', '');
+}
+
+export async function setGitUserParam(
+  key: 'name' | 'email',
+  value: string
+): Promise<void> {
+  const { stderr } = await exec(`git config user.${key} "${value}"`, {
     encoding: 'utf-8',
   });
   if (stderr) {
     throw new Error(stderr);
   }
-  return stdout?.trim() || '';
+}
+
+export function setGitEmail(email: string): Promise<void> {
+  return setGitUserParam('email', email);
+}
+
+export function setGitUserName(name: string): Promise<void> {
+  return setGitUserParam('name', name);
 }
 
 export async function getGitLocalBranchName(): Promise<string> {

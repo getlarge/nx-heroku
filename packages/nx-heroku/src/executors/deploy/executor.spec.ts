@@ -36,7 +36,7 @@ const options: DeployExecutorSchema = {
   },
   useForce: true,
   watchDelay: 0,
-  debug: true,
+  debug: false,
 };
 
 class MockHerokuAppService extends HerokuAppService {

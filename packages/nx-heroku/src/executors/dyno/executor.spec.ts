@@ -11,7 +11,7 @@ const options: Omit<DynoExecutorSchema, 'command'> = {
   config: 'development',
   apiKey: 'heroku-user-api-key',
   email: 'heroku-user-email',
-  debug: true,
+  debug: false,
 };
 
 class MockHerokuDynoService extends HerokuDynoService {

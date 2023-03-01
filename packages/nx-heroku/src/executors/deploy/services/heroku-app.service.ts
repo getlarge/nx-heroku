@@ -1,6 +1,10 @@
 /* eslint-disable max-lines */
 import axios from 'axios';
-import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
+import {
+  ChildProcessWithoutNullStreams,
+  ExecException,
+  spawn,
+} from 'child_process';
 import { readFile, writeFile } from 'fs/promises';
 import { toNumber } from 'lodash';
 import { join } from 'path';
@@ -10,6 +14,7 @@ import {
   APTFILE,
   HEROKU_BUILDPACK_APT,
   HEROKU_BUILDPACK_STATIC,
+  PROCFILE,
   STATIC_JSON,
 } from '../../common/constants';
 import { getGitLocalBranchName, getGitRemoteBranch } from '../../common/git';
@@ -95,23 +100,32 @@ class HerokuApp {
     public logger: LoggerInterface
   ) {}
 
+  private async addAndCommit(
+    projectName: string,
+    pattern: string
+  ): Promise<void> {
+    try {
+      //? allow custom commit message
+      await exec(
+        `git add ${pattern} && git commit -m "ci(${projectName}): add ${pattern}" -n --no-gpg-sign`
+      );
+      this.logger.info(`Wrote ${pattern} with custom configuration.`);
+    } catch (error) {
+      const ex = error as ExecException;
+      // there is (probably) nothing to commit
+      this.logger.warn(ex.message);
+      this.logger.warn(ex.code?.toString());
+    }
+  }
   /*
    * @description create Procfile from options
    */
   private async createProcfile(): Promise<void> {
     const { procfile, projectName } = this.options;
     if (procfile) {
-      const procfilePath = `apps/${projectName}/Procfile`;
+      const procfilePath = `apps/${projectName}/${PROCFILE}`;
       await writeFile(join(process.cwd(), procfilePath), procfile);
-      try {
-        //? allow custom commit message
-        await exec(
-          `git add ${procfilePath} && git commit -m "ci(${projectName}): add Procfile" -n --no-gpg-sign`
-        );
-        this.logger.info('Written Procfile with custom configuration');
-      } catch (err) {
-        // there is nothing to commit
-      }
+      await this.addAndCommit(projectName, PROCFILE);
     }
   }
 
@@ -121,6 +135,7 @@ class HerokuApp {
   ): Promise<void> {
     const { buildPacks, projectName } = this.options;
     if (buildPacks.includes(buildPackName)) {
+      // TODO: check nxConfig.appsDir
       const srcPath = join(
         process.cwd(),
         `apps/${projectName}/${buildPackFile}`
@@ -132,11 +147,7 @@ class HerokuApp {
       if (destBuildPackFile === srcBuildPackFile) return;
 
       await writeFile(destPath, srcBuildPackFile);
-      //? allow for custom commit message
-      await exec(
-        `git add ${buildPackFile} && git commit -m "ci(${projectName}): add ${buildPackFile}" -n --no-gpg-sign`
-      );
-      this.logger.info(`Written ${buildPackFile} with custom configuration`);
+      await this.addAndCommit(projectName, buildPackFile);
     }
   }
 
@@ -409,8 +420,8 @@ class HerokuApp {
           throw new Error('Failed to match the `checkString`');
         }
         this.logger.info(body);
-      } catch (err) {
-        this.logger.warn(err.message);
+      } catch (error) {
+        this.logger.warn(error.message);
         await this.healthcheckFailed();
       }
     }

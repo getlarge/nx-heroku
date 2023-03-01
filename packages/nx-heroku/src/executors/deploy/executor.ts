@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { ExecutorContext, logger } from '@nrwl/devkit';
+import { type ExecutorContext } from '@nrwl/devkit';
 import { Container } from 'typedi';
 
 import { EXECUTOR_CONTEXT } from '../common/constants';
@@ -18,10 +18,10 @@ export default async function herokuDeployment(
   const herokuDeployService = Container.get(HerokuDeployService);
   try {
     await herokuDeployService.run();
-    logger.info('Deployment successful.');
+    herokuDeployService.logger.info('Deployment successful.');
     return { success: true };
-  } catch (err) {
-    logger.error(err);
+  } catch (error) {
+    herokuDeployService.logger.error(error);
     return { success: false };
   } finally {
     await herokuDeployService.close();
