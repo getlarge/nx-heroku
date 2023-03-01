@@ -9,9 +9,6 @@ inputs:
   npm-token:
     description: NPM token
     required: true
-  version:
-    description: version type (patch, minor, major, ...)
-    required: true
   last-release:
     description: previous release commit hash
     required: true
@@ -19,33 +16,15 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Setup Git
+      shell: bash
+      run: |
+        git config user.name "GitHub Bot"
+        git config user.email "ed@getlarge.eu"
+
     - name: Version
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
-      shell: bash
-      run: npx nx affected --base=${{ inputs.last-release }} --target=version --type=${{ inputs.version }}
-
-    - name: Publish on NPM
-      shell: bash
-      run: npx nx affected --base=${{ inputs.last-release }} --target=publish
-      env:
-        GITHUB_TOKEN: ${{ inputs.github-token }}
         NODE_AUTH_TOKEN: ${{ inputs.npm-token }}
-
-    - name: Get package version
-      id: package-version
-      uses: martinbeentjes/npm-get-version-action@main
-      with:
-        path: packages/nx-heroku
-
-    - name: Tag last-release
       shell: bash
-      run: git tag -f ${{ steps.package-version.outputs.current-version }}
-
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ inputs.github-token }}
-        branch: ${{ github.ref }}
-        force: true
-        tags: true
+      run: npx nx affected --base=${{ inputs.last-release }} --target=version

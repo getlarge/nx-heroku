@@ -9,7 +9,7 @@ on:
         type: choice
         default: ''
         options:
-          - path
+          - patch
           - minor
           - major
 
@@ -48,6 +48,9 @@ jobs:
         with:
           from: ${{ steps.set-shas.outputs.base }}
 
+    outputs:
+      from: ${{ steps.set-shas.outputs.base }}
+
   release:
     runs-on: ubuntu-latest
 
@@ -61,13 +64,8 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          github-token: ${{ secrets.GH_PAT }}
-
-      - name: Derive appropriate SHAs for base and head for `nx affected` commands
-        id: set-shas
-        uses: nrwl/nx-set-shas@v3
-        with:
-          last-successful-event: release
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          node-version: '16'
 
       - name: Release
         uses: ./.github/actions/release
@@ -75,4 +73,4 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           npm-token: ${{ secrets.NPM_TOKEN }}
           version: ${{ inputs.version }}
-          last-release: ${{ steps.set-shas.outputs.base }}
+          last-release: ${{ needs.tests.outputs.from }}
