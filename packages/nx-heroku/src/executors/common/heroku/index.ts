@@ -16,8 +16,10 @@ export async function dynoCommand(options: {
 export * from './addons';
 export * from './apps';
 export * from './auth';
+export * from './buildpacks';
 export * from './config-vars';
 export * from './drains';
 export * from './error';
 export * from './members';
+export * from './plugins';
 export * from './webhooks';
