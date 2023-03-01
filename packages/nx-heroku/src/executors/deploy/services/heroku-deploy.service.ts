@@ -19,6 +19,7 @@ import { DEPLOY_EXECUTOR_SCHEMA } from './tokens';
 @Service()
 export class HerokuDeployService extends HerokuBaseService<DeployExecutorSchema> {
   private previousGitConfig = { name: '', email: '' };
+  private appsDir: string;
 
   constructor(
     @Inject(DEPLOY_EXECUTOR_SCHEMA)
@@ -29,6 +30,8 @@ export class HerokuDeployService extends HerokuBaseService<DeployExecutorSchema>
   ) {
     super(options, logger);
     this.logger.debug = options.debug;
+    this.appsDir =
+      context.nxJsonConfiguration?.workspaceLayout?.appsDir || 'apps';
   }
 
   /*
@@ -45,7 +48,7 @@ export class HerokuDeployService extends HerokuBaseService<DeployExecutorSchema>
      * in an Nx monorepo, there should be more that one app so more than one Procfile is needed,
      * which requires to use the buildpack 'heroku-community/multi-procfile' and to set the config var 'PROCFILE' to the path of the Procfile
      */
-    process.env.HD_PROCFILE = `apps/${projectName}/Procfile`;
+    process.env.HD_PROCFILE = `${this.appsDir}/${projectName}/Procfile`;
   }
 
   private async setupHeroku(): Promise<void> {

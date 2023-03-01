@@ -1,4 +1,5 @@
 /* eslint-disable max-lines */
+import { ExecutorContext } from '@nrwl/devkit';
 import axios from 'axios';
 import {
   ChildProcessWithoutNullStreams,
@@ -12,6 +13,7 @@ import { Inject, Service } from 'typedi';
 
 import {
   APTFILE,
+  EXECUTOR_CONTEXT,
   HEROKU_BUILDPACK_APT,
   HEROKU_BUILDPACK_STATIC,
   PROCFILE,
@@ -48,6 +50,7 @@ export class HerokuAppService {
   constructor(
     @Inject(DEPLOY_EXECUTOR_SCHEMA)
     private options: DeployExecutorSchema,
+    @Inject(EXECUTOR_CONTEXT) private readonly context: ExecutorContext,
     @Logger() private logger: LoggerInterface
   ) {
     this.logger.debug = options.debug;
@@ -77,7 +80,7 @@ export class HerokuAppService {
       ...options,
     };
     this.logger.info(`Deploying ${projectName} on ${appName} Heroku app...`);
-    await new HerokuApp(extendedOptions, this.logger).run();
+    await new HerokuApp(extendedOptions, this.context, this.logger).run();
   }
 }
 
@@ -98,12 +101,16 @@ export class HerokuAppService {
  * 13. Run healthcheck (optional)
  */
 class HerokuApp {
-  // TODO: add property appsDir => context.nxJsonConfiguration.workspaceLayout?.appsDir ??= 'apps';
+  private readonly appsDir: string;
 
   constructor(
     public options: ExtendedDeployExecutorSchema,
+    public context: ExecutorContext,
     public logger: LoggerInterface
-  ) {}
+  ) {
+    this.appsDir =
+      context.nxJsonConfiguration?.workspaceLayout?.appsDir || 'apps';
+  }
 
   private async addAndCommit(
     projectName: string,
@@ -128,7 +135,7 @@ class HerokuApp {
   private async createProcfile(): Promise<void> {
     const { procfile, projectName } = this.options;
     if (procfile) {
-      const procfilePath = `apps/${projectName}/${PROCFILE}`;
+      const procfilePath = `${this.appsDir}/${projectName}/${PROCFILE}`;
       await writeFile(join(process.cwd(), procfilePath), procfile);
       await this.addAndCommit(projectName, PROCFILE);
     }
@@ -140,10 +147,9 @@ class HerokuApp {
   ): Promise<void> {
     const { buildPacks, projectName } = this.options;
     if (buildPacks.includes(buildPackName)) {
-      // TODO: check nxConfig.appsDir
       const srcPath = join(
         process.cwd(),
-        `apps/${projectName}/${buildPackFile}`
+        `${this.appsDir}/${projectName}/${buildPackFile}`
       );
       const destPath = join(process.cwd(), buildPackFile);
       const srcBuildPackFile = await readFile(srcPath, 'utf-8');
@@ -325,11 +331,11 @@ class HerokuApp {
     //? if data contains `Everything up-to-date`, should we still restart the app
     push.stdout
       .setEncoding('utf-8')
-      .on('data', (data) => this.logger.info(data));
+      .on('data', (data) => this.logger.info(data?.trim()));
 
     push.stderr
       .setEncoding('utf-8')
-      .on('data', (data) => this.logger.info(data));
+      .on('data', (data) => this.logger.info(data?.trim()));
     return push;
   }
 

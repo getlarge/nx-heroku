@@ -40,8 +40,12 @@ const options: DeployExecutorSchema = {
 };
 
 class MockHerokuAppService extends HerokuAppService {
-  constructor(options: DeployExecutorSchema, logger: LoggerInterface) {
-    super(options, logger);
+  constructor(
+    options: DeployExecutorSchema,
+    context: ExecutorContext,
+    logger: LoggerInterface
+  ) {
+    super(options, context, logger);
   }
 }
 
@@ -63,16 +67,6 @@ describe('Deploy Executor', () => {
   let herokuDeployService: MockHerokuDeployService;
 
   beforeEach(() => {
-    logger = new ConsoleLogger();
-    herokuAppService = new MockHerokuAppService(options, logger);
-    herokuDeployService = new MockHerokuDeployService(
-      options,
-      context,
-      herokuAppService,
-      logger
-    );
-    Container.set(HerokuDeployService, herokuDeployService);
-
     context = {
       isVerbose: true,
       cwd: process.cwd(),
@@ -88,6 +82,16 @@ describe('Deploy Executor', () => {
         },
       },
     };
+
+    logger = new ConsoleLogger();
+    herokuAppService = new MockHerokuAppService(options, context, logger);
+    herokuDeployService = new MockHerokuDeployService(
+      options,
+      context,
+      herokuAppService,
+      logger
+    );
+    Container.set(HerokuDeployService, herokuDeployService);
 
     jest.spyOn(logger, 'info');
     jest.spyOn(logger, 'error');
