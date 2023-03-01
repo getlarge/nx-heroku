@@ -1,3 +1,5 @@
+import { fromPairs } from 'lodash';
+
 import { HEROKU_ENV_VARIABLES_PREFIX } from '../constants';
 import { exec, parseTable } from '../utils';
 
@@ -37,6 +39,16 @@ export function serializeConfigVar(
   return `${key}=${quote}${value}${quote}`;
 }
 
+export function serializeConfigVars(
+  variables: Variables,
+  quote: ConfigVarQuote = `'`
+): SerializedConfigVar[] {
+  return Object.entries(variables).reduce((acc, [key, value]) => {
+    acc.push(serializeConfigVar(key, value, quote));
+    return acc;
+  }, []);
+}
+
 export function addConfigVars(
   variables: Variables,
   source: Variables,
@@ -62,13 +74,26 @@ export function addConfigVars(
 export async function setConfigVars(options: {
   appName: string;
   configVars: SerializedConfigVar[];
-}): Promise<void> {
+}): Promise<Variables> {
   const { appName, configVars = [] } = options;
   if (configVars.length > 0) {
     // outputs variables set to stdout  key1: value1 \n key2: value2
     // outputs success message to stderr  Setting <configVars keys comma separated> and restarting ${appName}...
-    await exec(`heroku config:set --app=${appName} ${configVars.join(' ')}`);
+    const { stdout = '' } = await exec(
+      `heroku config:set --app=${appName} ${configVars.join(' ')}`
+    );
+    const updatedConfigVarsMatrix = stdout
+      .trim()
+      .split('\n')
+      .map((line) =>
+        line
+          .trim()
+          .split(':')
+          .map((el) => el.trim())
+      );
+    return fromPairs(updatedConfigVarsMatrix);
   }
+  return undefined;
 }
 
 /*
@@ -78,7 +103,7 @@ export async function mergeConfigVars(options: {
   appName: string;
   variables?: Variables;
   excludeKeys?: string[];
-}): Promise<void> {
+}): Promise<Variables> {
   const { appName, variables = {}, excludeKeys = [] } = options;
   const currentConfigVars = await getConfigVars(options);
   let configVars: SerializedConfigVar[] = [];
@@ -95,5 +120,5 @@ export async function mergeConfigVars(options: {
     ...configVars,
     ...addConfigVars(variables, currentConfigVars, excludeKeys),
   ];
-  await setConfigVars({ appName, configVars });
+  return setConfigVars({ appName, configVars });
 }
