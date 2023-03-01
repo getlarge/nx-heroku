@@ -27,4 +27,4 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         NODE_AUTH_TOKEN: ${{ inputs.npm-token }}
       shell: bash
-      run: npx nx affected --base=${{ inputs.last-release }} --target=version
+      run: npx nx affected --base=${{ inputs.last-release }} --target=version --dryRun=false
