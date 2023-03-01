@@ -18,7 +18,7 @@ const options: DeployExecutorSchema = {
   buildPacks: [],
   addons: [
     {
-      addonName: 'heroku-postgresql:hobby-dev',
+      addonName: 'heroku-postgresql:mini',
       addonAlias: 'POSTGRES',
     },
   ],

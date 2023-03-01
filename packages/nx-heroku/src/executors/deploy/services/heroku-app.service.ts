@@ -125,8 +125,7 @@ class HerokuApp {
     } catch (error) {
       const ex = error as ExecException;
       // there is (probably) nothing to commit
-      this.logger.warn(ex.message.trim());
-      this.logger.warn(ex.code?.toString());
+      this.logger.warn(`${ex.message.trim()}, code ${ex.code}`);
     }
   }
   /*
