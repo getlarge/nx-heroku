@@ -1,6 +1,7 @@
 import { logger } from '@nrwl/devkit';
-import type { ExecException } from 'child_process';
 import Container, { Constructable } from 'typedi';
+
+import { isExecException } from './utils';
 
 export interface LoggerInterface {
   debug: boolean;
@@ -8,10 +9,6 @@ export interface LoggerInterface {
   info(message: string): void;
   warn(message: string): void;
   error(message: string | Error | unknown): void;
-}
-
-function isExecException(error: unknown): error is ExecException {
-  return (error as ExecException).code !== undefined;
 }
 
 export class ConsoleLogger implements LoggerInterface {

@@ -1,4 +1,4 @@
-import { exec as cbBasedExec } from 'child_process';
+import { exec as cbBasedExec, ExecException } from 'child_process';
 import { expand } from 'dotenv-expand';
 import { cloneDeep, isString, merge, pickBy } from 'lodash';
 import { promisify } from 'util';
@@ -40,4 +40,8 @@ export function expandOptions<O extends object>(options: O): O {
   }, {});
   const { parsed } = expand({ parsed: pickBy(parsedNested, isString) });
   return merge(cloneDeep(options), parsedNested, parsed);
+}
+
+export function isExecException(error: unknown): error is ExecException {
+  return (error as ExecException).code !== undefined;
 }

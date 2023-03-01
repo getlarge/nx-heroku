@@ -21,20 +21,25 @@ import { getGitLocalBranchName, getGitRemoteBranch } from '../../common/git';
 import {
   addAddons,
   addAppToPipeline,
+  addBuildPack,
   addDrain,
   addMember,
   addWebhook,
+  clearBuildPacks,
   createApp,
   createAppRemote,
   createPipeline,
   getPipelineName,
+  hasPlugin,
   HerokuError,
+  installPlugin,
   mergeConfigVars,
   pipelineExists,
+  serializeConfigVars,
 } from '../../common/heroku';
 import { HerokuBaseService } from '../../common/heroku/base.service';
 import { Logger, LoggerInterface } from '../../common/logger';
-import { exec, sleep } from '../../common/utils';
+import { exec, isExecException, sleep } from '../../common/utils';
 import { DeployExecutorSchema, ExtendedDeployExecutorSchema } from '../schema';
 import { DEPLOY_EXECUTOR_SCHEMA } from './tokens';
 
@@ -113,7 +118,7 @@ class HerokuApp {
     } catch (error) {
       const ex = error as ExecException;
       // there is (probably) nothing to commit
-      this.logger.warn(ex.message);
+      this.logger.warn(ex.message.trim());
       this.logger.warn(ex.code?.toString());
     }
   }
@@ -151,25 +156,18 @@ class HerokuApp {
     }
   }
 
-  private async hasPlugin(plugin: string): Promise<boolean> {
-    const { stdout: list } = await exec('heroku plugins', { encoding: 'utf8' });
-    return list.includes(plugin);
-  }
-
   private async addBuildPacks(): Promise<void> {
     const { appName, buildPacks } = this.options;
     if (buildPacks?.length) {
-      if (!this.hasPlugin('buildpack-registry')) {
-        await exec('heroku plugins:install buildpack-registry');
+      if (!(await hasPlugin('buildpack-registry'))) {
+        await installPlugin('buildpack-registry');
       }
-      await exec(`heroku buildpacks:clear --app ${appName}`);
-      const promises = buildPacks.map((buildPack, i) => {
-        const index = i + 1;
-        return exec(
-          `heroku buildpacks:add ${buildPack} --app ${appName} --index ${index}`
-        );
-      });
-      await Promise.all(promises);
+      this.logger.info(`Clearing and adding buildpacks...`);
+      await clearBuildPacks({ appName });
+      for (const [i, buildPack] of buildPacks.entries()) {
+        await addBuildPack({ appName, buildPack, index: i + 1 });
+      }
+      this.logger.info(`Buildpacks ${buildPacks} added.`);
     }
   }
 
@@ -192,15 +190,23 @@ class HerokuApp {
           org,
           remoteName,
         });
-        this.logger.info(`Created app ${appName} on git remote ${remoteName}`);
+        this.logger.info(`Created app ${appName} on git remote ${remoteName}.`);
         return true;
       }
       throw error;
     }
-    this.logger.info(`Added git remote ${remoteName}`);
+    this.logger.info(`Added git remote ${remoteName}.`);
     return false;
   }
 
+  private async mergeConfigVars(): Promise<void> {
+    const updatedConfigVars = await mergeConfigVars(this.options);
+    if (updatedConfigVars) {
+      this.logger.info(
+        `Merged config vars : ${serializeConfigVars(updatedConfigVars)}.`
+      );
+    }
+  }
   private async addToPipeline(): Promise<void> {
     const {
       appName,
@@ -220,7 +226,7 @@ class HerokuApp {
         });
       } else {
         this.logger.warn(
-          `Pipeline ${pipelineName} not found, it will be created at the next step`
+          `Pipeline ${pipelineName} not found, it will be created at the next step.`
         );
         await createPipeline({ appName, environment, org, pipelineName });
         if (repositoryName) {
@@ -230,8 +236,8 @@ class HerokuApp {
         }
       }
     } catch (error) {
-      if (error.status !== 2) {
-        this.logger.warn(error.message);
+      if (isExecException(error) && error.code !== 2) {
+        this.logger.warn(error.message.trim());
       }
     }
   }
@@ -292,8 +298,8 @@ class HerokuApp {
     remoteBranch: string | undefined
   ): Promise<boolean> {
     this.logger.info(`Reset repo ${remoteBranch}`);
-    if (!(await this.hasPlugin('heroku-repo'))) {
-      await exec('heroku plugins:install heroku-repo');
+    if (!(await hasPlugin('heroku-repo'))) {
+      await installPlugin('heroku-repo');
     }
     await exec(`heroku repo:reset -a ${appName}`);
     return true;
@@ -316,9 +322,11 @@ class HerokuApp {
     }
 
     const push = spawn('git', args, { signal });
+    //? if data contains `Everything up-to-date`, should we still restart the app
     push.stdout
       .setEncoding('utf-8')
       .on('data', (data) => this.logger.info(data));
+
     push.stderr
       .setEncoding('utf-8')
       .on('data', (data) => this.logger.info(data));
@@ -432,7 +440,7 @@ class HerokuApp {
     await this.createStatic();
     await this.createAptfile();
     await this.addRemote();
-    await mergeConfigVars(this.options);
+    await this.mergeConfigVars();
     await this.addBuildPacks();
     // TODO: add warning if stack update is available https://devcenter.heroku.com/articles/upgrading-to-the-latest-stack
     await this.addToPipeline();

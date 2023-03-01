@@ -58,7 +58,9 @@ export class HerokuDeployService extends HerokuBaseService<DeployExecutorSchema>
       encoding: 'utf-8',
     });
     if (status) {
-      this.logger.warn(`Some local changes are not committed ${status}`);
+      this.logger.warn(
+        `Some local changes are not committed :\n ${status.trim()}`
+      );
     }
 
     // Check if Repo clone is shallow
