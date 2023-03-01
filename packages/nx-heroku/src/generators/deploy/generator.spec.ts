@@ -10,10 +10,6 @@ import generator from './generator';
 
 describe('nx-heroku deploy generator', () => {
   let appTree: Tree;
-  const options: GeneratorSchema = {
-    projectName: 'test',
-    org: 'test-org',
-  };
 
   beforeEach(() => {
     appTree = createTreeWithEmptyWorkspace({ layout: 'apps-libs' });
@@ -29,6 +25,10 @@ describe('nx-heroku deploy generator', () => {
   });
 
   it('should run successfully', async () => {
+    const options: GeneratorSchema = {
+      projectName: 'test',
+      org: 'test-org',
+    };
     await generator(appTree, options);
     const config = readProjectConfiguration(appTree, 'test');
     expect(config).toBeDefined();

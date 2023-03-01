@@ -22,12 +22,12 @@
     "apiKey": {
       "description": "This will be used for authentication on Heroku. You can find it in your heroku homepage account settings",
       "type": "string",
-      "default": "${HEROKU_API_KEY}"
+      "example": "${HEROKU_API_KEY}"
     },
     "email": {
       "description": "Email that you use to authenticate on Heroku",
       "type": "string",
-      "default": "${HEROKU_EMAIL}"
+      "example": "${HEROKU_EMAIL}"
     },
     "repositoryName": {
       "description": "Name of the GitHub repository, to create connection with the Heroku application",
@@ -38,7 +38,11 @@
       "description": "Heroku team name and organization name in Github",
       "type": "string",
       "example": "my-org"
+    },
+    "debug": {
+      "description": "Wether log verbosity is enabled",
+      "type": "boolean"
     }
   },
-  "required": ["projectName"]
+  "required": ["projectName", "org"]
 }

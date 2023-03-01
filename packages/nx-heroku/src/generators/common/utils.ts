@@ -16,6 +16,9 @@ function createTargetOptions(
     'appNamePrefix',
     'repositoryName',
     'org',
+    'apiKey',
+    'email',
+    'debug',
   ];
 
   return targetOptions
