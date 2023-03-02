@@ -28,6 +28,7 @@ describe('nx-heroku deploy generator', () => {
     const options: GeneratorSchema = {
       projectName: 'test',
       org: 'test-org',
+      apiKey: '${HEROKU_API_KEY}',
     };
     await generator(appTree, options);
     const config = readProjectConfiguration(appTree, 'test');
@@ -37,6 +38,7 @@ describe('nx-heroku deploy generator', () => {
       executor: '@aloes/nx-heroku:deploy',
       options: {
         org: 'test-org',
+        apiKey: '${HEROKU_API_KEY}',
       },
     });
   });
