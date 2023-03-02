@@ -1,3 +1,5 @@
+import isEmail from 'validator/lib/isEmail';
+
 import { HEROKU_AUTH_FILE } from '../constants';
 import { LoggerInterface } from '../logger';
 import { expandOptions } from '../utils';
@@ -6,6 +8,7 @@ import { createCatFile, removeCatFile } from './auth';
 export type BaseOptions = object & {
   email: string;
   apiKey: string;
+  serviceUser?: string;
 };
 
 export abstract class HerokuBaseService<O extends BaseOptions> {
@@ -15,6 +18,11 @@ export abstract class HerokuBaseService<O extends BaseOptions> {
    * Expand options (interpolate variables starting with $)
    */
   static validateOptions<o extends BaseOptions>(options: o): o {
+    if (options.serviceUser && !isEmail(options.serviceUser)) {
+      throw new TypeError(
+        `serviceUser (${options.serviceUser}) is not a valid email.`
+      );
+    }
     return expandOptions(options);
   }
 

@@ -21,7 +21,7 @@ export interface DeployExecutorSchema
     user?: string;
     password?: string;
   };
-  serviceUser: string;
+  serviceUser?: string;
   procfile?: string;
   branch?: string;
   useForce?: boolean;

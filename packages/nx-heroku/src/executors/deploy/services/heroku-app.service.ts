@@ -247,6 +247,7 @@ class HerokuApp {
 
   private async findOrAddMember(): Promise<void> {
     const { serviceUser } = this.options;
+    if (!serviceUser) return;
     const response = await addMember({
       appName: this.options.appName,
       serviceUser,

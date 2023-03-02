@@ -10,10 +10,10 @@ export async function createCatFile(options: {
 }): Promise<void> {
   const { email, apiKey } = options;
   if (!isEmail(email)) {
-    throw new TypeError(`email (${email}) is not valid.`);
+    throw new TypeError(`email (${email}) is not a valid email.`);
   }
   if (!isUUID(apiKey)) {
-    throw new TypeError(`apiKey (${apiKey}) is not valid.`);
+    throw new TypeError(`apiKey (${apiKey}) is not a valid UUID.`);
   }
   const content = `
 machine api.heroku.com
