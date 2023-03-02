@@ -315,12 +315,13 @@ class HerokuApp {
   private createDeployProcess(
     signal: AbortSignal
   ): ChildProcessWithoutNullStreams {
-    const { branch, remoteName, useForce } = this.options;
+    const { apiKey, appName, branch, useForce } = this.options;
     // calling git push with option progress, it is required to push output to stdout
     // otherwise listening to stdout and stderr would not work, and spawn options would require stdio: 'inherit'
     const args = [
       'push',
-      remoteName,
+      // trying this instead of this.options.remoteName to get past some auth issue
+      `https://heroku:${apiKey}@git.heroku.com/${appName}.git`,
       `${branch}:refs/heads/main`,
       '--progress',
     ];
