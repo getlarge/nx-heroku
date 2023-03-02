@@ -45,5 +45,5 @@
       "type": "boolean"
     }
   },
-  "required": ["config", "apiKey", "email", "org"]
+  "required": ["config", "apiKey", "email"]
 }

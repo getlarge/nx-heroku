@@ -1,6 +1,6 @@
 export interface GeneratorSchema {
   projectName: string;
-  org: string;
+  org?: string;
   repositoryName?: string;
   appNamePrefix?: string;
   apiKey?: string;

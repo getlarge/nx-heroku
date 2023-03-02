@@ -4,7 +4,8 @@ import { Environment } from '../common/constants';
 export interface DeployExecutorSchema
   extends Omit<ExecutorBaseSchema, 'config'> {
   config: Environment[];
-  org: string;
+  // org not required to allow for personal apps
+  org?: string;
   repositoryName?: string;
   buildPacks: string[];
   variables?: Record<string, string>;

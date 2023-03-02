@@ -121,16 +121,15 @@ export async function appExists(options: {
 export async function createApp(options: {
   appName: string;
   remoteName: string;
-  org: string;
+  org?: string;
   region?: string;
 }): Promise<{ stdout: string; stderr: string }> {
   const { appName, remoteName, org, region = 'eu' } = options;
   // outputs on success to stderr : Creating ${appName}... done, region is ${region}, stack is ${HEROKU_STACK}
   // outputs on success to stdout : https://<app-name>.herokuapp.com/ | https://git.heroku.com/<app-name>.git
-  return exec(
-    `heroku create ${appName} --remote ${remoteName} --region ${region} --stack ${HEROKU_STACK} --team ${org}`,
-    { encoding: 'utf-8' }
-  );
+  const baseCommand = `heroku apps:create ${appName} --remote ${remoteName} --region ${region} --stack ${HEROKU_STACK}`;
+  const command = org ? `${baseCommand} --team ${org}` : baseCommand;
+  return exec(command, { encoding: 'utf-8' });
 }
 
 export async function createAppRemote(options: {
@@ -156,12 +155,12 @@ export async function createPipeline(options: {
   appName: string;
   pipelineName: string;
   environment: Environment;
-  org: string;
+  org?: string;
 }): Promise<void> {
   const { appName, environment, org, pipelineName } = options;
-  await exec(
-    `heroku pipelines:create ${pipelineName} --app ${appName} --stage ${environment} --team ${org}`
-  );
+  const baseCommand = `heroku pipelines:create ${pipelineName} --app ${appName} --stage ${environment}`;
+  const command = org ? `${baseCommand} --team ${org}` : baseCommand;
+  await exec(command);
 }
 
 export async function addAppToPipeline(options: {

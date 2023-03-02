@@ -44,5 +44,5 @@
       "type": "boolean"
     }
   },
-  "required": ["projectName", "org"]
+  "required": ["projectName"]
 }
