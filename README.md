@@ -1,9 +1,8 @@
 ![Nx](https://img.shields.io/badge/nx-143055?style=for-the-badge&logo=nx&logoColor=white)
-
+❤
 ![Heroku](https://img.shields.io/badge/heroku-%23430098.svg?style=for-the-badge&logo=heroku&logoColor=white)
 
 ![test](https://github.com/getlarge/nx-heroku/actions/workflows/test.yml/badge.svg)
-
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=getlarge_nx-heroku&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=getlarge_nx-heroku)
 
 # nx-heroku
