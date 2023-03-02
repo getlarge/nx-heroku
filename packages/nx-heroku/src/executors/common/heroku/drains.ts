@@ -15,9 +15,12 @@ export async function getDrains(appName: string): Promise<
     url: string;
   }[]
 > {
-  const { stdout, stderr } = await exec(`heroku drains -a ${appName} --json`, {
-    encoding: 'utf-8',
-  });
+  const { stdout, stderr } = await exec(
+    `heroku drains --app ${appName} --json`,
+    {
+      encoding: 'utf-8',
+    }
+  );
   if (stderr) {
     logger.warn(HerokuError.cleanMessage(stderr));
     return [];
@@ -47,7 +50,7 @@ export async function addDrain(options: {
     return 'found';
   }
   // output success to stdout:  Successfully added drain ${drain.url}
-  const { stderr } = await exec(`heroku drains:add ${url} -a ${appName}`);
+  const { stderr } = await exec(`heroku drains:add ${url} --app ${appName}`);
   if (stderr) {
     throw new HerokuError(stderr);
   }

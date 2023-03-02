@@ -7,7 +7,7 @@ import { HerokuError } from './error';
 export async function getWebhooks(
   appName: string
 ): Promise<{ id: string; url: string; include: string; level: string }[]> {
-  const { stdout, stderr } = await exec(`heroku webhooks -a ${appName}`, {
+  const { stdout, stderr } = await exec(`heroku webhooks --app ${appName}`, {
     encoding: 'utf-8',
   });
   if (stderr) {
@@ -47,11 +47,15 @@ export async function addWebhook(options: {
   const include = webhook.include.join(',');
   const webhooks = await getWebhooks(appName);
   const sameWebhookEndpoint = webhooks.find((hook) => hook.url === url);
+
+  const baseCommandParameters = `--app ${appName} --url ${url} --include "${include}" --level ${level}`;
+  const commandParameters = secret
+    ? `${baseCommandParameters} --secret "${secret}"`
+    : baseCommandParameters;
+
   if (!sameWebhookEndpoint) {
     // output success to stderr : Adding webhook to ${appName}... done
-    await exec(
-      `heroku webhooks:add -u ${url} -i ${include} -l ${level} -s ${secret} -a ${appName}`
-    );
+    await exec(`heroku webhooks:add ${commandParameters}`);
     return 'created';
   } else if (
     sameWebhookEndpoint.id &&
@@ -60,7 +64,7 @@ export async function addWebhook(options: {
   ) {
     // output success to stderr : Updating webhook ${sameWebhookEndpoint.id} for ${appName}... done
     await exec(
-      `heroku webhooks:update ${sameWebhookEndpoint.id} -u ${url} -i ${include} -l ${level} -s ${secret} -a ${appName}`
+      `heroku webhooks:update ${sameWebhookEndpoint.id} ${commandParameters}`
     );
     return 'updated';
   }

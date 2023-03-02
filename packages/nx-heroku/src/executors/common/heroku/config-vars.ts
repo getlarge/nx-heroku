@@ -14,7 +14,7 @@ export async function getConfigVars(options: {
   appName: string;
 }): Promise<Record<string, string>> {
   const { appName } = options;
-  const { stdout: configVars } = await exec(`heroku config --app=${appName}`, {
+  const { stdout: configVars } = await exec(`heroku config --app ${appName}`, {
     encoding: 'utf-8',
   });
   const rawAppEnv = parseTable(configVars) || [];
@@ -80,7 +80,7 @@ export async function setConfigVars(options: {
     // outputs variables set to stdout  key1: value1 \n key2: value2
     // outputs success message to stderr  Setting <configVars keys comma separated> and restarting ${appName}...
     const { stdout = '' } = await exec(
-      `heroku config:set --app=${appName} ${configVars.join(' ')}`
+      `heroku config:set --app ${appName} ${configVars.join(' ')}`
     );
     const updatedConfigVarsMatrix = stdout
       .trim()

@@ -112,16 +112,19 @@ class HerokuApp {
       context.nxJsonConfiguration?.workspaceLayout?.appsDir || 'apps';
   }
 
-  private async addAndCommit(
+  private async addAndCommitFile(
     projectName: string,
-    pattern: string
+    fileName: string
   ): Promise<void> {
     try {
-      //? allow custom commit message
+      //? allow custom commit message with format from 'util'
+      // const COMMIT_MESSAGE_TEMPLATE = '%s(%s): %s';
+      // format(COMMIT_MESSAGE_TEMPLATE, conf.type, conf.scope, conf.message);
+      const path = `${this.appsDir}/${projectName}/${fileName}`;
       await exec(
-        `git add ${pattern} && git commit -m "ci(${projectName}): add ${pattern}" -n --no-gpg-sign`
+        `git add ${path} && git commit -m "ci(${projectName}): add ${fileName}" -n --no-gpg-sign`
       );
-      this.logger.info(`Wrote ${pattern} with custom configuration.`);
+      this.logger.info(`Wrote ${path} with custom configuration.`);
     } catch (error) {
       const ex = error as ExecException;
       // there is (probably) nothing to commit
@@ -136,7 +139,7 @@ class HerokuApp {
     if (procfile) {
       const procfilePath = `${this.appsDir}/${projectName}/${PROCFILE}`;
       await writeFile(join(process.cwd(), procfilePath), procfile);
-      await this.addAndCommit(projectName, PROCFILE);
+      await this.addAndCommitFile(projectName, PROCFILE);
     }
   }
 
@@ -157,7 +160,7 @@ class HerokuApp {
       if (destBuildPackFile === srcBuildPackFile) return;
 
       await writeFile(destPath, srcBuildPackFile);
-      await this.addAndCommit(projectName, buildPackFile);
+      await this.addAndCommitFile(projectName, buildPackFile);
     }
   }
 
@@ -325,10 +328,14 @@ class HerokuApp {
       args.push('--force');
     }
 
-    const push = spawn('git', args, { signal });
-    //? if data contains `Everything up-to-date`, should we still restart the app
+    console.warn({
+      cwd: process.cwd(),
+      cwd2: this.context.cwd,
+    });
+    const push = spawn('git', args, { signal, cwd: this.context.cwd });
     push.stdout
       .setEncoding('utf-8')
+      //? if data contains `Everything up-to-date`, should we still restart the app ?
       .on('data', (data) => this.logger.info(data?.trim()));
 
     push.stderr

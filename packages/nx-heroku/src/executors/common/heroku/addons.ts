@@ -8,9 +8,7 @@ export async function getAddons(
 ): Promise<{ addon_service: { name: string } }[]> {
   const { stdout, stderr } = await exec(
     `heroku addons --app ${appName} --json`,
-    {
-      encoding: 'utf-8',
-    }
+    { encoding: 'utf-8' }
   );
   if (!stderr) {
     return parseJsonString(stdout);
@@ -25,7 +23,7 @@ export async function addAddon(options: {
   addonName: string;
 }) {
   const { addonAlias, addonName, appName } = options;
-  const baseCommand = `heroku addons:create ${addonName} -a ${appName}`;
+  const baseCommand = `heroku addons:create ${addonName} --app ${appName}`;
   const command = addonAlias
     ? `${baseCommand} --as ${addonAlias}`
     : baseCommand;

@@ -58,7 +58,7 @@ export async function appExists(options: {
 }): Promise<boolean> {
   try {
     // check if appName exists, throws an error if it doesn't
-    const { stderr } = await exec(`heroku apps:info -a ${options.appName}`, {
+    const { stderr } = await exec(`heroku apps:info --app ${options.appName}`, {
       encoding: 'utf-8',
     });
     if (stderr) {

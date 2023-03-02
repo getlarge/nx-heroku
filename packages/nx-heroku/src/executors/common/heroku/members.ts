@@ -17,9 +17,10 @@ export async function getMembers(appName: string): Promise<
     privileges: { name: string; description: string }[];
   }[]
 > {
-  const { stdout, stderr } = await exec(`heroku access -a ${appName} --json`, {
-    encoding: 'utf-8',
-  });
+  const { stdout, stderr } = await exec(
+    `heroku access --app ${appName} --json`,
+    { encoding: 'utf-8' }
+  );
   if (stderr && !stdout) {
     throw new HerokuError(stderr);
   }
@@ -46,7 +47,7 @@ export async function addMember(options: {
   } else {
     // success message is sent to stderr : Adding ${serviceUser} access to the app ${appName}
     await exec(
-      `heroku access:add ${serviceUser} -a ${appName} -p ${permissions}`
+      `heroku access:add ${serviceUser} --app ${appName} --permissions "${permissions}"`
     );
     return 'created';
   }
