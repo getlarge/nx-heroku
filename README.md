@@ -1,3 +1,11 @@
+![Nx](https://img.shields.io/badge/nx-143055?style=for-the-badge&logo=nx&logoColor=white)
+
+![Heroku](https://img.shields.io/badge/heroku-%23430098.svg?style=for-the-badge&logo=heroku&logoColor=white)
+
+![test](https://github.com/getlarge/nx-heroku/actions/workflows/test.yml/badge.svg)
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=getlarge_nx-heroku&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=getlarge_nx-heroku)
+
 # nx-heroku
 
 This library was generated with [Nx](https://nx.dev).
@@ -251,3 +259,14 @@ function cleanup(argv) {
 
 cleanup(process.argv);
 ```
+
+<!--
+TODO:
+
+## Promoting app to staging or production
+
+- document generator and explain how to promote an app to staging or production with executor
+
+Mention issues with frontend applications due to app not being rebuilt (variables from previous stage are used show example with an API URL variable)
+
+ -->
