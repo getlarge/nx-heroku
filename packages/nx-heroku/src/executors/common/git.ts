@@ -49,11 +49,12 @@ export function setGitUserName(name: string): Promise<void> {
 }
 
 export async function getGitLocalBranchName(): Promise<string> {
-  const { stdout, stderr } = await exec('git rev-parse --abbrev-ref HEAD', {
+  // initially we used 'git rev-parse --abbrev-ref HEAD', see https://stackoverflow.com/questions/6245570/how-do-i-get-the-current-branch-name-in-git
+  const { stdout, stderr } = await exec('git symbolic-ref --short HEAD', {
     encoding: 'utf-8',
   });
   if (stderr) {
-    throw new Error(stderr);
+    ConsoleLogger.warn(stderr);
   }
   return stdout?.trim();
 }
