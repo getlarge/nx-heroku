@@ -1,17 +1,7 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version type to bump packages to'
-        required: true
-        type: choice
-        default: ''
-        options:
-          - patch
-          - minor
-          - major
+  - workflow_dispatch
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-release
@@ -47,6 +37,8 @@ jobs:
         uses: ./.github/actions/test
         with:
           from: ${{ steps.set-shas.outputs.base }}
+          heroku-api-key: ${{ secrets.HEROKU_API_KEY }}
+          heroku-email: ${{ secrets.HEROKU_EMAIL }}
 
     outputs:
       from: ${{ steps.set-shas.outputs.base }}
@@ -72,5 +64,4 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           npm-token: ${{ secrets.NPM_TOKEN }}
-          version: ${{ inputs.version }}
           last-release: ${{ needs.tests.outputs.from }}

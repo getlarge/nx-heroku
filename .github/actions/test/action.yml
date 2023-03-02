@@ -6,6 +6,12 @@ inputs:
   from:
     description: Commit hash used as base
     required: true
+  heroku-api-key:
+    description: Heroku API key
+    required: true
+  heroku-email:
+    description: Heroku email
+    required: true
 
 runs:
   using: composite
@@ -28,5 +34,8 @@ runs:
       run: npx nx affected:test --base=${{ inputs.from }}
 
     - name: E2E
+      env:
+        HEROKU_API_KEY: ${{ inputs.heroku-api-key }}
+        HEROKU_EMAIL: ${{ inputs.heroku-email }}
       shell: bash
       run: npx nx affected:e2e --base=${{ inputs.from }}

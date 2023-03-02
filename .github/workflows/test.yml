@@ -35,6 +35,8 @@ jobs:
         uses: ./.github/actions/test
         with:
           from: ${{ steps.set-shas.outputs.base }}
+          heroku-api-key: ${{ secrets.HEROKU_API_KEY }}
+          heroku-email: ${{ secrets.HEROKU_EMAIL }}
 
       # for now we just have one lib in the monorepo, so we can just use its version to qualify the sonar quality gate new code
       - name: Get nx-heroku version
