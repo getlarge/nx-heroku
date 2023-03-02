@@ -21,5 +21,6 @@ export * from './config-vars';
 export * from './drains';
 export * from './error';
 export * from './members';
+export * from './pipelines';
 export * from './plugins';
 export * from './webhooks';
