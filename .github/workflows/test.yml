@@ -36,9 +36,18 @@ jobs:
         with:
           from: ${{ steps.set-shas.outputs.base }}
 
-      # TODO:
-      # - name: SonarCloud Scan
-      #   uses: sonarsource/sonarcloud-github-action@master
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      # for now we just have one lib in the monorepo, so we can just use its version to qualify the sonar quality gate new code
+      - name: Get nx-heroku version
+        id: nx-heroku-version
+        uses: martinbeentjes/npm-get-version-action@main
+        with:
+          path: packages/nx-heroku
+
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectVersion=${{ steps.nx-heroku-version.outputs.current-version }}
