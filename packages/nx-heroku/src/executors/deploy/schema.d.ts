@@ -1,11 +1,12 @@
 import { ExecutorBaseSchema } from '../common/base-schema';
 import { Environment } from '../common/constants';
 
-export interface DeployExecutorSchema extends Omit<ExecutorBaseSchema, 'config'> {
+export interface DeployExecutorSchema
+  extends Omit<ExecutorBaseSchema, 'config'> {
   config: Environment[];
   org: string;
   repositoryName?: string;
-  buildPacks?: string[];
+  buildPacks: string[];
   variables?: Record<string, string>;
   addons?: { addonAlias?: string; addonName: string }[];
   webhook?: {

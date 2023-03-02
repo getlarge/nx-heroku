@@ -163,17 +163,15 @@ class HerokuApp {
 
   private async addBuildPacks(): Promise<void> {
     const { appName, buildPacks } = this.options;
-    if (buildPacks?.length) {
-      if (!(await hasPlugin('buildpack-registry'))) {
-        await installPlugin('buildpack-registry');
-      }
-      this.logger.info(`Clearing and adding buildpacks...`);
-      await clearBuildPacks({ appName });
-      for (const [i, buildPack] of buildPacks.entries()) {
-        await addBuildPack({ appName, buildPack, index: i + 1 });
-      }
-      this.logger.info(`Buildpacks ${buildPacks} added.`);
+    if (!(await hasPlugin('buildpack-registry'))) {
+      await installPlugin('buildpack-registry');
     }
+    this.logger.info(`Clearing and adding buildpacks...`);
+    await clearBuildPacks({ appName });
+    for (const [i, buildPack] of buildPacks.entries()) {
+      await addBuildPack({ appName, buildPack, index: i + 1 });
+    }
+    this.logger.info(`Buildpacks ${buildPacks} added.`);
   }
 
   private createStatic(): Promise<void> {

@@ -189,5 +189,5 @@
       "type": "boolean"
     }
   },
-  "required": ["config", "apiKey", "email", "org", "watchDelay"]
+  "required": ["config", "apiKey", "email", "org", "buildPacks", "watchDelay"]
 }

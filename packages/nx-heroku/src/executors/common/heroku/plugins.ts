@@ -14,6 +14,5 @@ export async function hasPlugin(plugin: string): Promise<boolean> {
 }
 
 export async function installPlugin(plugin: string): Promise<void> {
-  const { stdout, stderr } = await exec(`heroku plugins:install ${plugin}`);
-  console.warn('installPlugin', stdout, stderr);
+  await exec(`heroku plugins:install ${plugin}`);
 }

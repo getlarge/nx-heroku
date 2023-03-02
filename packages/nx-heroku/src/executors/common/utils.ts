@@ -23,6 +23,7 @@ export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// TODO: refactor to be more performant and efficient, running expand on each object option is (probably) not really efficient
 export function expandOptions<O extends object>(options: O): O {
   // iterate over 1 nested level objects
   const parsedNested = Object.entries(options).reduce((acc, curr) => {
