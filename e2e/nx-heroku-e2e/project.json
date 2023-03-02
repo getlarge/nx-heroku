@@ -9,6 +9,12 @@
       "options": {
         "target": "nx-heroku:build",
         "jestConfig": "e2e/nx-heroku-e2e/jest.config.ts"
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
       }
     }
   },

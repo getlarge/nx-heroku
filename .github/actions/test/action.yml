@@ -31,11 +31,13 @@ runs:
 
     - name: Test
       shell: bash
-      run: npx nx affected:test --base=${{ inputs.from }}
+      run: npx nx affected:test --base=${{ inputs.from }} --c=ci
 
     - name: E2E
       env:
         HEROKU_API_KEY: ${{ inputs.heroku-api-key }}
         HEROKU_EMAIL: ${{ inputs.heroku-email }}
       shell: bash
-      run: npx nx affected:e2e --base=${{ inputs.from }}
+      run: npx nx affected:e2e --base=${{ inputs.from }} --c=ci
+
+    # TODO: merge coverage and upload to be used by sonar
