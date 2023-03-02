@@ -328,10 +328,6 @@ class HerokuApp {
       args.push('--force');
     }
 
-    console.warn({
-      cwd: process.cwd(),
-      cwd2: this.context.cwd,
-    });
     const push = spawn('git', args, { signal, cwd: this.context.cwd });
     push.stdout
       .setEncoding('utf-8')

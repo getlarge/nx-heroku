@@ -1,5 +1,10 @@
 import { runNxCommandAsync } from '@nrwl/nx-plugin/testing';
-import { createProject, setup, teardown } from './tools';
+import {
+  createProject,
+  prepareProjectForDeployment,
+  setup,
+  teardown,
+} from './tools';
 
 const org = 'test-org';
 const HEROKU_API_KEY = '${HEROKU_API_KEY}';
@@ -24,6 +29,17 @@ describe('nx-heroku e2e', () => {
   });
 
   describe('deploy', () => {
+    // no mo required options
+    it.skip('should fail to create target when required options are missing', async () => {
+      const { projectName, getProjectConfig } = await createProject();
+      //
+      await expect(
+        runNxCommandAsync(`generate @aloes/nx-heroku:deploy ${projectName}`)
+      ).rejects.toThrowError();
+      const project = getProjectConfig();
+      expect(project.targets?.deploy).toBeUndefined();
+    }, 120000);
+
     it('should create target with org', async () => {
       const { projectName, getProjectConfig } = await createProject();
       //
@@ -32,16 +48,6 @@ describe('nx-heroku e2e', () => {
       );
       const project = getProjectConfig();
       expect(project.targets?.deploy?.options?.org).toEqual(org);
-    }, 120000);
-
-    it('should fail to create target when required options are missing', async () => {
-      const { projectName, getProjectConfig } = await createProject();
-      //
-      await expect(
-        runNxCommandAsync(`generate @aloes/nx-heroku:deploy ${projectName}`)
-      ).rejects.toThrowError();
-      const project = getProjectConfig();
-      expect(project.targets?.deploy).toBeUndefined();
     }, 120000);
 
     it('should create target with Heroku credentials option', async () => {
@@ -66,12 +72,11 @@ describe('nx-heroku e2e', () => {
       process.env.HEROKU_EMAIL = process.env.HEROKU_EMAIL_PREV;
       // configure the target
       await runNxCommandAsync(
-        `generate @aloes/nx-heroku:deploy ${projectName} --appNamePrefix=aloes --org=aloes`
+        `generate @aloes/nx-heroku:deploy ${projectName} --appNamePrefix=aloes`
       );
       const project = getProjectConfig();
       project.targets!.deploy.options = {
         ...(project.targets!.deploy.options || {}),
-        // branch: 'main',
         procfile: `web: node dist/apps/${projectName}/main.js`,
         buildPacks: ['heroku/nodejs', 'heroku-community/multi-procfile'],
         apiKey: HEROKU_API_KEY,
@@ -88,17 +93,23 @@ describe('nx-heroku e2e', () => {
           include: ['api:build', 'api:release'],
         },
         drain: {
-          url: 'https://example.com/drain',
+          url: 'https://basic:auth@example.com/drain',
+        },
+        variables: {
+          // used in postbuild.js
+          PROJECT_NAME: projectName,
         },
         useForce: true,
+        //? resetRepo: true,
+        serviceUser: 'edouard@aloes.io',
         debug: true,
       };
       updateProjectConfig(project);
+      prepareProjectForDeployment(projectName);
       // run the target
       const result = await runNxCommandAsync(`deploy ${projectName}`, {
         silenceError: true,
       });
-      console.warn(result);
       expect(result.stdout).toContain('Deployment successful.');
       // TODO: check that the app was deployed, pipeline was created, etc.
     }, 200000);
@@ -113,7 +124,7 @@ describe('nx-heroku e2e', () => {
       // TODO: first deploy then promote, or use existing app ? would be faster but goes against the principle of one project per test
 
       await runNxCommandAsync(
-        `generate @aloes/nx-heroku:promote ${projectName} --apiKey='${HEROKU_API_KEY}' --email='${HEROKU_EMAIL}' --appNamePrefix=aloes --org=aloes`
+        `generate @aloes/nx-heroku:promote ${projectName} --apiKey='${HEROKU_API_KEY}' --email='${HEROKU_EMAIL}' --appNamePrefix=aloes`
       );
       const project = getProjectConfig();
       project.targets!.deploy.options = {
