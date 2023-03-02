@@ -328,7 +328,7 @@ class HerokuApp {
       args.push('--force');
     }
 
-    const push = spawn('git', args, { signal, cwd: this.context.cwd });
+    const push = spawn('git', args, { signal });
     push.stdout
       .setEncoding('utf-8')
       //? if data contains `Everything up-to-date`, should we still restart the app ?

@@ -10,7 +10,7 @@ import {
   updateFile,
 } from '@nrwl/nx-plugin/testing';
 import { execSync as oGExecSync } from 'child_process';
-import { copyFileSync, writeFileSync } from 'fs';
+import { copyFileSync } from 'fs';
 import { PackageJson } from 'nx/src/utils/package-json';
 import { join } from 'path';
 
@@ -35,7 +35,7 @@ export function initGit() {
   execSync(
     `git init --quiet
     # Make CI runner happy
-    git config user.email "bot@aloes.io"
+    git config user.email "${process.env.HEROKU_EMAIL || 'ed@getlarge.eu'}"
     git config user.name "Test Bot"
     git config commit.gpgsign false
     `
