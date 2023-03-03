@@ -101,6 +101,7 @@ sequenceDiagram
 	participant Nx as Nx Plugin
 	participant CLI as Heroku
 	participant Git as Git
+	participant App as Deployed app
 
   note over Nx,Nx: Set internal variables and default options
   Nx->>Nx: Setup
@@ -110,7 +111,7 @@ sequenceDiagram
     Nx->>Git: Add and commit static.json config
   end
   opt heroku-community/apt is in buildPacks
-    Nx->>Git: Add and commit Aptfile buildpack config (if heroku-community/apt is in buildPacks)
+    Nx->>Git: Add and commit Aptfile buildpack config
   end
   Nx->>CLI: Create app remote branch
   opt app does not exists
@@ -129,7 +130,7 @@ sequenceDiagram
     end
   end
   Nx->>CLI: Attach the app to a pipeline
-  opt managementMember is provided in options
+  opt serviceUser is provided in options
     Nx->>CLI: Add management member to the app
   end
   opt addons is provided in options
@@ -148,10 +149,11 @@ sequenceDiagram
   opt watchDelay is set to > 0
     Nx->>Git: Wait for the app to be deployed until the timeout is reached
   end
-  opt healthcheck url is provided in options
-    Nx->>CLI: Run healthcheck
+  opt healthcheck (url) is provided in options
+    Nx->>App: Run healthcheck
     opt healthcheck failed and rollbackOnHealthcheckFailed is set to true
       Nx->>CLI: Rollback
+      CLI->>App: Restore app to previous state
     end
   end
 
@@ -377,10 +379,10 @@ function cleanup(argv) {
   const appPackageLockJsonPath = `apps/${projectName}/${packageLockJsonPath}`;
   // remove all project dependencies and cache to respect slug size limitation
   if (existsSync('node_modules')) {
-    rmSync('node_modules', { recursive: true });
+    rmSync('node_modules', { recursive: true, force: true });
   }
   if (existsSync('.yarn/cache')) {
-    rmSync('.yarn/cache', { recursive: true });
+    rmSync('.yarn/cache', { recursive: true, force: true });
   }
 
   // only backend apps should have generated a custom package.json
