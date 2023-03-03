@@ -2,6 +2,23 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.2.1](https://github.com/getlarge/nx-heroku/compare/nx-heroku-0.2.0...nx-heroku-0.2.1) (2023-03-03)
+
+### Bug Fixes
+
+- **nx-heroku:** change git push args to get past auth issue ([fd59651](https://github.com/getlarge/nx-heroku/commit/fd59651c6314db8b27262db9eb8c0d22ce020de6))
+- **nx-heroku:** change method to retrieve current branch ([8c4f33c](https://github.com/getlarge/nx-heroku/commit/8c4f33c8775e0ba7ae0e96b38cb5816484dacc69))
+- **nx-heroku:** handle case where serviceUser is undefined or invalid ([7388c5d](https://github.com/getlarge/nx-heroku/commit/7388c5d91c51063a73c9c61540e26584cc4541a7))
+- **nx-heroku:** make `org` optional to allow personal apps ([d4b8244](https://github.com/getlarge/nx-heroku/commit/d4b82444917c66ab28e8a4aa7c94a9bf66bea657))
+- **nx-heroku:** make addons setup non blocking in case of error ([9ea5413](https://github.com/getlarge/nx-heroku/commit/9ea5413b0078a2f6aa2a65bc044b14d3959201db))
+- **nx-heroku:** make buildpacks option required ([81646f8](https://github.com/getlarge/nx-heroku/commit/81646f8182601e85867e5f0f6054424b8319177e))
+- **nx-heroku:** update generator options assignment ([2e22feb](https://github.com/getlarge/nx-heroku/commit/2e22feb558dcaf8f7a1bd3304dc2974157c2efcd))
+- **nx-heroku:** wrap parameters with double quotes ([8e2ad9f](https://github.com/getlarge/nx-heroku/commit/8e2ad9f8285f1ce23f16bce8bcecfcb0921c2a76))
+
+### Reverts
+
+- **nx-heroku:** restore default CWD with spawn ([42dfae4](https://github.com/getlarge/nx-heroku/commit/42dfae4fd61817a8ff0a1fa93e7138f4965e7cce))
+
 ## [0.2.0](https://github.com/getlarge/nx-heroku/compare/nx-heroku-0.1.2...nx-heroku-0.2.0) (2023-03-01)
 
 ### Features
