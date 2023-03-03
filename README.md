@@ -300,7 +300,6 @@ async function refreshPackageJson(implicitDeps = [], skipDev = false) {
   const options = {
     projectRoot: data.root,
     root: process.cwd(),
-    externalDependencies: 'all',
   };
   const packageJson = createPackageJson(projectName, projectGraph, options);
   for (const dep of implicitDeps) {
@@ -314,9 +313,7 @@ async function refreshPackageJson(implicitDeps = [], skipDev = false) {
   // packageJson.dependencies = sortObjectByKeys(packageJson.dependencies);
   // packageJson.devDependencies = sortObjectByKeys(packageJson.devDependencies);
   const packageJsonPath = `apps/${projectName}/package.json`;
-  if (existsSync(packageJsonPath)) {
-    unlinkSync(packageJsonPath);
-  }
+  existsSync(packageJsonPath) && unlinkSync(packageJsonPath);
   writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
 
   // generate and store lock file
