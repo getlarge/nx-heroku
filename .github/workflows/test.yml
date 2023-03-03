@@ -1,8 +1,29 @@
 name: Test
 
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - README.md
+      - docs/*.md
+      - .vscode/**
+      - CHANGELOG.md
+      - '**/CHANGELOG.md'
+  pull_request:
+    branches:
+      - main
+    types:
+      - ready_for_review
+      - opened
+      - reopened
+      - synchronize
+    paths-ignore:
+      - README.md
+      - docs/*.md
+      - .vscode/**
+      - CHANGELOG.md
+      - '**/CHANGELOG.md'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-test
