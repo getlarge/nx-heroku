@@ -7,60 +7,157 @@
 
 # nx-heroku
 
-This library was generated with [Nx](https://nx.dev).
+This plugin allows you to deploy any Nx application to Heroku. It is based on the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) and should help you to achieve simple or complex deployments.
 
-## Conventions
+- It supports multi-procfile buildpacks so that each app in your Nx workspace can be deployed to a different Heroku app.
+- It supports Heroku pipelines and multi-stage deployments (development, staging, production) for each app.
+- It can be used in CI/CD pipelines (Github Actions, Gitlab CI, etc) or locally to deploy your apps to Heroku.
+- It can create Heroku apps, addons, webhooks and drains automatically if they don't exist.
 
-The application names deployed on Heroku are composed with the pattern `${appPrefixName}-${projectName}-${environment}`, where
-
-- `appPrefixName` is the prefix name of the Heroku app, it can be customized via the `appNamePrefix` option.
-- `projectName` is the name of the Nx project.
-- `environment` is the Heroku pipeline stage (development, staging or production), it can be customized via the `config` option.
-
-Due to some length limitations (32 characters), the environment name is shortened and the application name might be shortened as well.
-
-Examples:
-
-- `aloes-my-service-dev`
-- `aloes-frontend-staging`
-- `aloes-myapp-prod`
-
-This logic is applied in this [Heroku helpers module](./packages/nx-heroku/src/executors/common/heroku/apps.ts)
-
-## Deploying to Heroku
+## Setup
 
 To deploy your application to Heroku, you need to have the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) installed.
 In Github Actions, it comes already installed in the runners.
 
-When running the executor, it will login to Heroku with the credentials (`email`, `apiKey`) provided via the executors options.
+When running the executor, it will authenticate to Heroku with the credentials (`email`, `apiKey`) provided via the executors options.
 
-### Generate target
+To install the plugin, run the following command:
+
+```bash
+# with npm
+npm install -D @aloes/nx-heroku
+
+# or with yarn
+yarn add -D @aloes/nx-heroku
+```
+
+## Generate target
+
+### Deploy
 
 To generate a target for your application, run the following command:
 
 ```bash
-npx nx g @aloes/nx-heroku:deploy --projectName=my-app --org=your-heroku-team --appNamePrefix=your-app-prefix
+npx nx generate @aloes/nx-heroku:deploy --projectName=my-app --org=your-heroku-team --appNamePrefix=your-app-prefix
+
+# or to be prompted for the project name, omit specifying it
+npx nx g @aloes/nx-heroku:deploy
+
 ```
 
 This will generate a `deploy` target in your `project.json` file.
 
-### Execute target
+### Promote
+
+To generate a target for your application, run the following command:
+
+```bash
+npx nx generate @aloes/nx-heroku:promote --projectName=my-app --org=your-heroku-team --appNamePrefix=your-app-prefix
+
+# or to be prompted for the project name, omit specifying it
+npx nx g @aloes/nx-heroku:promote
+
+```
+
+This will generate a `promote` target in your `project.json` file.
+
+## Execute target
+
+### Deploy
 
 The [`nx-heroku:deploy`](./packages/nx-heroku/src//executors/deploy/executor.ts) executor allows to deploy an Nx application to a targeted Heroku app. The deployment will be done for each pipeline stage declared via the option `config` (default: ['development'])
-Variables prefixed by `HD_` will be added (without the prefix) to the Heroku app config automatically.
-
-The environment variables `HD_PROJECT_NAME`,`HD_PROJECT_ENV`, `HD_NODE_ENV` and `HD_PROCFILE` will automatically be defined based on the project name and environment being deployed.
-`PROCFILE` is required when using [multi-procfile buildpack](https://elements.heroku.com/buildpacks/heroku/heroku-buildpack-multi-procfile), it should be defined in each Heroku app to indicate the Procfile path for the given project.
-
-Extra buildpacks can be provided by using `buildPacks` option, they will be installed in the order they are provided in the array.
 
 You can have a look at the [schema](./packages/nx-heroku/src/executors/deploy/schema.json) of the executor to see all the options available.
 
-If the Heroku app doesn't exist, it will be created and named after the pattern described in [Conventions](#conventions).
+When deploying an application, the following steps are executed:
 
-- `appName` is set with `-p` option and needs to match between the project path under `apps`.
-- `prefix` defaults to `s1` and can be customized via `-P` options
-- `env` will be automatically defined based on `-c` option
+1. Set internal variables which are prefixed with HD to avoid conflicts with variables provided by the user (`variables` option)
+2. Authentification to Heroku via .netrc file
+3. Set default options (branch to current branch, environment to development, watchDelay to 0)
+4. Set the Heroku app name.
+   The Heroku app will be named after the pattern described in [Conventions](#naming-conventions).
+5. Create project 'Procfile'
+6. Create static buildpack config (optional)
+7. Create 'Aptfile', to install extra Ubuntu dependencies before build (optional)
+8. Ensure remote is added (and that application created).
+9. Merge `HD_` prefixed variables with the one provided in the options and set Heroku app `config vars`.
+   You can provide your own variables prefixed by `HD_`, they will be added (without the prefix) to the Heroku app config automatically.
+   The environment variables `HD_PROJECT_NAME`,`HD_PROJECT_ENV`, `HD_NODE_ENV` and `HD_PROCFILE` will automatically be defined based on the project name and environment being deployed.
+   `PROCFILE` is required when using [multi-procfile buildpack](https://elements.heroku.com/buildpacks/heroku/heroku-buildpack-multi-procfile), it should be defined in each Heroku app to indicate the Procfile path for the given project.
+10. Cleanup and register buildpacks.
+    Extra buildpacks can be provided by using `buildPacks` option, they will be installed in **the order they are provided in the array**.
+11. Ensure app is attached to a pipeline with a stage matching the environment provided in options
+    If the Heroku app doesn't exist, it will be created and attach to an existing or new pipeline.
+12. Assign management member (optional)
+13. Register addons (optional)
+14. Register drain (optional)
+15. Register webhook (optional)
+16. Deploy (trigger build and release)
+17. Run healthcheck (optional)
+18. Rollback if healthcheck failed (optional)
+
+```mermaid
+sequenceDiagram
+	participant Nx as Nx Plugin
+	participant CLI as Heroku
+	participant Git as Git
+
+  note over Nx,Nx: Set internal variables and default options
+  Nx->>Nx: Setup
+  Nx->>CLI: Heroku authentication with .netrc file
+  Nx->>Git: Add and commit Procfile
+  opt heroku-community/static is in buildPacks
+    Nx->>Git: Add and commit static.json config
+  end
+  opt heroku-community/apt is in buildPacks
+    Nx->>Git: Add and commit Aptfile buildpack config (if heroku-community/apt is in buildPacks)
+  end
+  Nx->>CLI: Create app remote branch
+  opt app does not exists
+    Nx->>CLI: Create app and bind remote branch
+  end
+  Nx->>CLI: Fetch app config vars
+  note over Nx,CLI: Merge HD_ prefixed variables, options variables<br/>and the config vars from the Heroku app
+  Nx->>CLI: Set app config vars
+  Nx->>CLI: Clear buildpacks
+  Nx->>CLI: Add buildpacks
+  Nx->>CLI: Check pipeline exists
+  opt pipeline does not exists
+    Nx->>CLI: Create pipeline
+     opt repositoryName is provided in options
+      Nx->>CLI: Connect the pipeline to the repository
+    end
+  end
+  Nx->>CLI: Attach the app to a pipeline
+  opt managementMember is provided in options
+    Nx->>CLI: Add management member to the app
+  end
+  opt addons is provided in options
+    Nx->>CLI: Add addons to the app
+  end
+  opt drain is provided in options
+    Nx->>CLI: Add drain to the app
+  end
+  opt webhook is provided in options
+    Nx->>CLI: Add webhook to the app
+  end
+  opt resetRepo is set to true in options
+    Nx->>CLI: Reset the app repository
+  end
+  Nx->>Git: Deploy app
+  opt watchDelay is set to > 0
+    Nx->>Git: Wait for the app to be deployed until the timeout is reached
+  end
+  opt healthcheck url is provided in options
+    Nx->>CLI: Run healthcheck
+    opt healthcheck failed and rollbackOnHealthcheckFailed is set to true
+      Nx->>CLI: Rollback
+    end
+  end
+
+```
+
+### Example
 
 For the given example project config:
 
@@ -76,7 +173,7 @@ For the given example project config:
       "executor": "@aloes/nx-heroku:deploy",
       "options": {
         "appNamePrefix": "aloes",
-        "org": "aloes",
+        "procfile": "web: bin/start-nginx-solo",
         "buildPacks": [
           "heroku/nodejs",
           "heroku-community/multi-procfile",
@@ -86,7 +183,6 @@ For the given example project config:
           "NGINX_APP_ROOT": "dist/apps/frontend",
           "YARN2_SKIP_PRUNING": "true"
         },
-        "procfile": "web: bin/start-nginx-solo",
         "useForce": true,
         "debug": true
       }
@@ -102,12 +198,74 @@ You can run the deployment with :
 export HEROKU_API_KEY=<your_heroku_api_key>
 export HEROKU_EMAIL=<your_heroku_account_email>
 
-npx nx run deploy frontend --config 'development,staging' --apiKey $HEROKU_API_KEY --email $HEROKU_EMAIL
+#  this will build and release the applications `my-app-frontend-development` and `my-app-frontend-staging` to Heroku
+npx nx run frontend:deploy --config 'development,staging' --appPrefixName my-app --apiKey $HEROKU_API_KEY --email $HEROKU_EMAIL
 ```
+
+### Promote
+
+The [`nx-heroku:promote`](./packages/nx-heroku/src//executors/promote/executor.ts) executor allows to promote an existing Heroku app from a pipeline. The promotion will be done for each pipeline stage declared via the option `config` (default: 'staging')
+
+The promotion can be done :
+
+- from development to staging by setting the config to 'staging',
+- from staging to production by setting the config to 'production'
+
+When promoting an application, the following steps are executed:
+
+1. Check that pipeline exists
+2. Check that the app to promote is attached to the pipeline, if not create it and attach it.
+3. Merge config vars from the promoted app with the `variables` option.
+4. Promote the app to the next stage
+5. Assign management member (optional)
+
+You can run the promotion with :
+
+```bash
+export HEROKU_API_KEY=<your_heroku_api_key>
+export HEROKU_EMAIL=<your_heroku_account_email>
+
+#  this will promote the application `my-app-frontend-development` to `my-app-frontend-staging` to Heroku
+npx nx run frontend:promote --config staging --appPrefixName my-app --apiKey $HEROKU_API_KEY --email $HEROKU_EMAIL
+```
+
+<code> <b>Beware with frontend applications, the app is not being rebuilt so variables set in the build from down stream stage are used. </b> </code>
+
+## Naming conventions
+
+### Pipeline name
+
+The pipeline name deployed on Heroku is composed with the pattern `${appPrefixName}-${projectName}`, where :
+
+- `appPrefixName` is the prefix name of the Heroku app, it can be customized via the `appNamePrefix` option.
+- `projectName` is the name of the Nx project.
+
+Examples:
+
+- `aloes-my-service`
+- `aloes-frontend`
+
+### Application name
+
+The application names deployed on Heroku are composed with the pattern `${appPrefixName}-${projectName}-${environment}`, where :
+
+- `appPrefixName` is the prefix name of the Heroku app, it can be customized via the `appNamePrefix` option.
+- `projectName` is the name of the Nx project.
+- `environment` is the Heroku pipeline stage (development, staging or production), it can be customized via the `config` option.
+
+Due to some length limitations (32 characters), the environment name is shortened and the application name might be shortened as well.
+
+Examples:
+
+- `aloes-my-service-dev`
+- `aloes-frontend-staging`
+- `aloes-myapp-prod`
+
+This logic is applied in this [Heroku helpers module](./packages/nx-heroku/src/executors/common/heroku/apps.ts)
 
 ---
 
-### Hooks
+## Hooks
 
 Heroku allows to run scripts called during the deployment process, for node projects we can make use of package.json scripts to run these hooks.
 See the [Heroku documentation](https://devcenter.heroku.com/articles/nodejs-support#customizing-the-build-process) for more details.
@@ -125,7 +283,7 @@ For example, we can use the `heroku-postbuild` script to provide our own applica
 
 I will provide some examples based on my experience with Nx apps deployment on Heroku.
 
-#### Custom build process
+### Custom build process
 
 The `heroku-postbuild` script is used to build the application, it is executed after the `npm install` command.
 
@@ -165,10 +323,10 @@ async function refreshPackageJson(implicitDeps = [], skipDev = false) {
   execSync(`npm i --prefix apps/${projectName} --package-lock-only`, {
     stdio: 'inherit',
   });
-  // or when using nx >= 15.7.0
+  // or when using nx >= 15.x
   const lockFile = createLockFile(packageJson);
   const packageLockJsonPath = `apps/${projectName}/package-lock.json`;
-  writeFileSync(packageLockJsonPath, JSON.stringify(lockFile, null, 2));
+  writeFileSync(packageLockJsonPath, lockFile);
 }
 
 async function postbuild(argv) {
@@ -190,7 +348,7 @@ postbuild(process.argv).catch((e) => {
 });
 ```
 
-#### Custom cleanup
+### Custom cleanup
 
 The `heroku-clean` script is used to cleanup the application before the deployment, it is executed after the `heroku-postbuild` script.
 In this case we can remove the `node_modules` folder and only install the given project dependencies to respect the slug size limitation.
@@ -258,14 +416,3 @@ function cleanup(argv) {
 
 cleanup(process.argv);
 ```
-
-<!--
-TODO:
-
-## Promoting app to staging or production
-
-- document generator and explain how to promote an app to staging or production with executor
-
-Mention issues with frontend applications due to app not being rebuilt (variables from previous stage are used show example with an API URL variable)
-
- -->
