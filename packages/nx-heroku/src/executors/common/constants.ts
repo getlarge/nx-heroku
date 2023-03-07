@@ -4,7 +4,10 @@ import { join } from 'path';
 import { Token } from 'typedi';
 
 // TODO: on windows path is _netrc
-export const HEROKU_AUTH_FILE = `${join(homedir(), '.netrc')}`;
+export const HEROKU_AUTH_FILE = `${join(
+  homedir(),
+  '.netrc'
+)}` as `${string}/.netrc`;
 export const HEROKU_MAX_APP_NAME_LENGTH = 30;
 export const HEROKU_STACK = 'heroku-22';
 export const HEROKU_BUILDPACK_MULTI_PROCFILE =

@@ -4,7 +4,7 @@ import isUUID from 'validator/lib/isUUID';
 
 import { HEROKU_AUTH_FILE } from '../constants';
 
-export async function createCatFile(options: {
+export async function createNetRcFile(options: {
   email: string;
   apiKey: string;
 }): Promise<void> {
@@ -26,7 +26,7 @@ machine git.heroku.com
   await writeFile(HEROKU_AUTH_FILE, content);
 }
 
-export async function removeCatFile(): Promise<void> {
+export async function removeNetRcFile(): Promise<void> {
   try {
     await rm(HEROKU_AUTH_FILE);
   } catch (error) {
