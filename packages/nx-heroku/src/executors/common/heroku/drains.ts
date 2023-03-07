@@ -17,9 +17,7 @@ export async function getDrains(appName: string): Promise<
 > {
   const { stdout, stderr } = await exec(
     `heroku drains --app ${appName} --json`,
-    {
-      encoding: 'utf-8',
-    }
+    { encoding: 'utf-8' }
   );
   if (stderr) {
     logger.warn(HerokuError.cleanMessage(stderr));
@@ -46,13 +44,21 @@ export async function addDrain(options: {
     url = urlObject.href;
   }
   const drains = await getDrains(appName);
-  if (drains?.length && drains.find((el) => el.url === url)) {
+  if (drains?.length && drains.some((el) => el.url === url)) {
     return 'found';
   }
   // output success to stdout:  Successfully added drain ${drain.url}
-  const { stderr } = await exec(`heroku drains:add ${url} --app ${appName}`);
-  if (stderr) {
-    throw new HerokuError(stderr);
+  try {
+    const { stderr } = await exec(`heroku drains:add ${url} --app ${appName}`);
+    if (stderr) {
+      throw new HerokuError(stderr);
+    }
+    return 'created';
+  } catch (e) {
+    // for some reason this error happens even though we check if the drain exists before
+    if (e.toString().includes('Url has already been taken')) {
+      return 'found';
+    }
+    throw e;
   }
-  return 'created';
 }
