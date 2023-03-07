@@ -21,7 +21,6 @@ export async function getConfigVars(options: {
   if (rawAppEnv.includes(`Invalid credentials provided`)) {
     throw new Error('Invalid credentials provided');
   }
-  rawAppEnv.shift();
   return rawAppEnv.reduce((acc, line) => {
     const parts = line.split(':');
     const key = parts.shift().trim();

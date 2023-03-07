@@ -1,7 +1,7 @@
 import { logger } from '@nrwl/devkit';
 
 import { exec, parseJsonString } from '../utils';
-import { HerokuError } from './error';
+import { HerokuError, shouldHandleHerokuError } from './error';
 
 export async function getAddons(
   appName: string
@@ -30,8 +30,8 @@ export async function addAddon(options: {
   // output success to stdout : Your add-on is being provisioned. It will be available shortly ...
   // output sucess to stderr : Creating ${addonName} on ${appName}...
   try {
-    const { stderr } = await exec(command);
-    if (stderr) {
+    const { stderr, stdout } = await exec(command);
+    if (shouldHandleHerokuError(stderr, stdout)) {
       logger.warn(HerokuError.cleanMessage(stderr));
     }
   } catch (e) {

@@ -13,6 +13,10 @@ import { execSync as oGExecSync } from 'child_process';
 import { copyFileSync } from 'fs';
 import { PackageJson } from 'nx/src/utils/package-json';
 import { join } from 'path';
+import {
+  createNetRcFile,
+  removeNetRcFile,
+} from '../../../packages/nx-heroku/src/executors/common/heroku';
 
 const PLUGIN_NAME = '@aloes/nx-heroku';
 const PLUGIN_PATH = 'dist/packages/nx-heroku';
@@ -74,8 +78,11 @@ function destroyApp(options: {
   // see https://devcenter.heroku.com/articles/heroku-cli-commands#heroku-apps-destroy
   try {
     execSync(`heroku apps:destroy ${appName} --confirm ${appName}`);
-  } catch {
+  } catch (e) {
     // it's ok, the app was probably not created
+    if (!e.toString().includes("Couldn't find that app.")) {
+      console.warn(e);
+    }
   }
 }
 
@@ -83,13 +90,18 @@ export async function teardown(projects: string[]) {
   // `nx reset` kills the daemon, and performs
   // some work which can help clean up e2e leftovers
   await runNxCommandAsync('reset');
-  cleanup();
+  await createNetRcFile({
+    apiKey: process.env.HEROKU_API_KEY as string,
+    email: process.env.HEROKU_EMAIL as string,
+  });
   //  destroy all apps created by the e2e tests
   for (const projectName of projects) {
     for (const environment of ['dev', 'staging']) {
       destroyApp({ projectName, environment });
     }
   }
+  cleanup();
+  await removeNetRcFile();
 }
 
 // TEST HELPERS
@@ -130,7 +142,7 @@ type PkgJson = PackageJson & {
  *
  * @description patch package.json to be compatible with heroku installation
  */
-function patchPackageJson(projectName: string) {
+function patchPackageJson() {
   const packageJson = readJson<PkgJson>('package.json');
   packageJson.engines = {
     node: '>=16.x',
@@ -152,13 +164,13 @@ function commitPackageJson() {
   );
 }
 
-function setPackageJsonForHeroku(projectName: string) {
-  patchPackageJson(projectName);
+function setPackageJsonForHeroku() {
+  patchPackageJson();
   commitPackageJson();
   patchPackageJsonForPlugin(PLUGIN_NAME, PLUGIN_PATH);
 }
 
 export function prepareProjectForDeployment(projectName: string) {
   commitProject(projectName);
-  setPackageJsonForHeroku(projectName);
+  setPackageJsonForHeroku();
 }

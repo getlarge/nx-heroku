@@ -3,7 +3,7 @@ import isEmail from 'validator/lib/isEmail';
 import { HEROKU_AUTH_FILE } from '../constants';
 import { LoggerInterface } from '../logger';
 import { expandOptions } from '../utils';
-import { createCatFile, removeCatFile } from './auth';
+import { createNetRcFile, removeNetRcFile } from './auth';
 
 export type BaseOptions = object & {
   email: string;
@@ -32,12 +32,12 @@ export abstract class HerokuBaseService<O extends BaseOptions> {
   }
 
   async setupHerokuAuth(): Promise<void> {
-    await createCatFile(this.options);
+    await createNetRcFile(this.options);
     this.logger.info(`Created and wrote to ${HEROKU_AUTH_FILE}`);
   }
 
   async tearDownHerokuAuth(): Promise<void> {
-    await removeCatFile();
+    await removeNetRcFile();
     this.logger.info(`Removed ${HEROKU_AUTH_FILE}`);
   }
 }

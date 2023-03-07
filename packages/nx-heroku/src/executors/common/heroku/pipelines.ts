@@ -3,7 +3,7 @@ import { logger } from '@nrwl/devkit';
 import { Environment } from '../constants';
 import { exec, parseJsonString } from '../utils';
 import { getAppName } from './apps';
-import { HerokuError } from './error';
+import { HerokuError, shouldHandleHerokuError } from './error';
 
 export function getPipelineName(options: {
   appNamePrefix?: string;
@@ -44,7 +44,8 @@ export async function pipelineExists(options: {
   const { stdout, stderr } = await exec(`heroku pipelines --json`, {
     encoding: 'utf-8',
   });
-  stderr && logger.error(new HerokuError(stderr));
+  shouldHandleHerokuError(stderr, stdout) &&
+    logger.error(new HerokuError(stderr));
   const pipelines = parseJsonString(stdout).map((pipeline) => pipeline?.name);
   return pipelines.includes(pipelineName);
 }
@@ -67,11 +68,12 @@ export async function addAppToPipeline(options: {
   environment: Environment;
 }): Promise<void> {
   const { appName, pipelineName, environment } = options;
-  const { stderr } = await exec(
+  const { stderr, stdout } = await exec(
     `heroku pipelines:add ${pipelineName} --app ${appName} --stage ${environment}`,
     { encoding: 'utf-8' }
   );
-  stderr && logger.warn(HerokuError.cleanMessage(stderr));
+  shouldHandleHerokuError(stderr, stdout) &&
+    logger.warn(HerokuError.cleanMessage(stderr));
 }
 
 export async function promoteApp(options: {
@@ -98,6 +100,7 @@ export async function promoteApp(options: {
   const { stdout, stderr } = await exec(
     `heroku pipelines:promote --app ${sourceAppName} --to ${appName}`
   );
-  stderr && logger.warn(HerokuError.cleanMessage(stderr));
+  shouldHandleHerokuError(stderr, stdout) &&
+    logger.warn(HerokuError.cleanMessage(stderr));
   return stdout;
 }

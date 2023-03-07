@@ -26,7 +26,7 @@ describe('nx-heroku e2e', () => {
 
   afterAll(async () => {
     await teardown(projects);
-  });
+  }, 120000);
 
   describe('deploy', () => {
     // no mo required options
@@ -107,10 +107,12 @@ describe('nx-heroku e2e', () => {
       updateProjectConfig(project);
       prepareProjectForDeployment(projectName);
       // run the target
-      const result = await runNxCommandAsync(`deploy ${projectName}`, {
-        silenceError: true,
-      });
-      expect(result.stdout).toContain('Deployment successful.');
+      const { stderr, stdout } = await runNxCommandAsync(
+        `deploy ${projectName} --verbose`,
+        { silenceError: true }
+      );
+      console.warn(stdout, stderr);
+      expect(stdout).toContain('Deployment successful.');
       // TODO: check that the app was deployed, pipeline was created, etc.
     }, 200000);
   });
@@ -133,8 +135,11 @@ describe('nx-heroku e2e', () => {
         debug: true,
       };
       updateProjectConfig(project);
-      const result = await runNxCommandAsync(`promote ${projectName}`);
-      expect(result.stdout).toContain('Deployment successful.');
+      const { stdout } = await runNxCommandAsync(
+        `promote ${projectName} --verbose`,
+        { silenceError: true }
+      );
+      expect(stdout).toContain('Promotion successful.');
       // TODO: check that the app was promoted, pipeline was created|updated, etc.
     }, 120000);
   });

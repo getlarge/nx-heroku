@@ -3,7 +3,7 @@ import { URL } from 'url';
 import isURL from 'validator/lib/isURL';
 
 import { exec, parseJsonString } from '../utils';
-import { HerokuError } from './error';
+import { HerokuError, shouldHandleHerokuError } from './error';
 
 export async function getDrains(appName: string): Promise<
   {
@@ -17,11 +17,9 @@ export async function getDrains(appName: string): Promise<
 > {
   const { stdout, stderr } = await exec(
     `heroku drains --app ${appName} --json`,
-    {
-      encoding: 'utf-8',
-    }
+    { encoding: 'utf-8' }
   );
-  if (stderr) {
+  if (shouldHandleHerokuError(stderr, stdout)) {
     logger.warn(HerokuError.cleanMessage(stderr));
     return [];
   }
@@ -46,13 +44,25 @@ export async function addDrain(options: {
     url = urlObject.href;
   }
   const drains = await getDrains(appName);
-  if (drains?.length && drains.find((el) => el.url === url)) {
+  if (drains?.length && drains.some((el) => el.url === url)) {
     return 'found';
   }
   // output success to stdout:  Successfully added drain ${drain.url}
-  const { stderr } = await exec(`heroku drains:add ${url} --app ${appName}`);
-  if (stderr) {
-    throw new HerokuError(stderr);
+  try {
+    const { stderr, stdout } = await exec(
+      `heroku drains:add ${url} --app ${appName}`
+    );
+    if (shouldHandleHerokuError(stderr, stdout)) {
+      // Warning: heroku update available
+      throw new HerokuError(stderr);
+    }
+    return 'created';
+  } catch (e) {
+    // for some reason this error happens even though we check if the drain exists before
+    // probably because of the "Warning: heroku update available ..." message ?
+    if (e.toString().includes('Url has already been taken')) {
+      return 'found';
+    }
+    throw e;
   }
-  return 'created';
 }

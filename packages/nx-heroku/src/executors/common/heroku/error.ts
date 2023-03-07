@@ -12,3 +12,15 @@ export class HerokuError extends Error {
     return removeConsoleOutputColors(message);
   }
 }
+
+export function shouldHandleHerokuError(
+  stderr: string,
+  stdout: string
+): boolean {
+  const warnings = ['Warning: heroku update available'];
+  return (
+    stderr &&
+    !warnings.some((warning) => stderr.trim().includes(warning)) &&
+    !stdout?.trim()
+  );
+}

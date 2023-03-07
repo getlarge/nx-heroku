@@ -101,7 +101,7 @@ sequenceDiagram
 	participant Nx as Nx Plugin
 	participant CLI as Heroku
 	participant Git as Git
-	participant App as Deployed app
+	participant App as Application
 
   note over Nx,Nx: Set internal variables and default options
   Nx->>Nx: Setup
@@ -145,7 +145,7 @@ sequenceDiagram
   opt resetRepo is set to true in options
     Nx->>CLI: Reset the app repository
   end
-  Nx->>Git: Deploy app
+  Nx->>Git: Build and release app
   opt watchDelay is set to > 0
     Nx->>Git: Wait for the app to be deployed until the timeout is reached
   end
