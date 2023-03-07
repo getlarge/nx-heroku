@@ -15,8 +15,6 @@ export async function getWebhooks(
     return [];
   }
   const res = parseTable(stdout);
-  // remove header from webhooks response
-  res.shift();
   return res.map((webhook) => {
     const [id, url, include, level] = webhook.split(' ');
     return { id, url, include, level };
