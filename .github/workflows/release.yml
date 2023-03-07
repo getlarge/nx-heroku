@@ -64,4 +64,4 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           npm-token: ${{ secrets.NPM_TOKEN }}
-          last-release: ${{ needs.tests.outputs.from }}
+          last-release: ${{ needs.test.outputs.from }}
