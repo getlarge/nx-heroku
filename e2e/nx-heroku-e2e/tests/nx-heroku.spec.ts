@@ -26,7 +26,7 @@ describe('nx-heroku e2e', () => {
 
   afterAll(async () => {
     await teardown(projects);
-  });
+  }, 120000);
 
   describe('deploy', () => {
     // no mo required options
