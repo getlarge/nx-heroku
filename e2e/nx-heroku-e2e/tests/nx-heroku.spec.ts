@@ -113,6 +113,7 @@ describe('nx-heroku e2e', () => {
           silenceError: true,
         }
       );
+      console.warn(result.stdout);
       expect(result.stdout).toContain('Deployment successful.');
       // TODO: check that the app was deployed, pipeline was created, etc.
     }, 200000);
