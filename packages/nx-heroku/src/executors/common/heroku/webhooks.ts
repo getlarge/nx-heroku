@@ -2,7 +2,7 @@ import { logger } from '@nrwl/devkit';
 import isURL from 'validator/lib/isURL';
 
 import { exec, parseTable } from '../utils';
-import { HerokuError } from './error';
+import { HerokuError, shouldHandleHerokuError } from './error';
 
 export async function getWebhooks(
   appName: string
@@ -10,7 +10,7 @@ export async function getWebhooks(
   const { stdout, stderr } = await exec(`heroku webhooks --app ${appName}`, {
     encoding: 'utf-8',
   });
-  if (stderr) {
+  if (shouldHandleHerokuError(stderr, stdout)) {
     logger.warn(HerokuError.cleanMessage(stderr));
     return [];
   }

@@ -1,5 +1,5 @@
 import { exec, parseJsonString } from '../utils';
-import { HerokuError } from './error';
+import { HerokuError, shouldHandleHerokuError } from './error';
 
 export async function getMembers(appName: string): Promise<
   {
@@ -21,7 +21,7 @@ export async function getMembers(appName: string): Promise<
     `heroku access --app ${appName} --json`,
     { encoding: 'utf-8' }
   );
-  if (stderr && !stdout) {
+  if (shouldHandleHerokuError(stderr, stdout)) {
     throw new HerokuError(stderr);
   }
   return parseJsonString(stdout);

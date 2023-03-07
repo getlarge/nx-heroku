@@ -8,7 +8,7 @@ import {
   HerokuEnvironment,
 } from '../constants';
 import { exec } from '../utils';
-import { HerokuError } from './error';
+import { HerokuError, shouldHandleHerokuError } from './error';
 
 export type AppName =
   | `${string}-${HerokuEnvironment}`
@@ -58,10 +58,11 @@ export async function appExists(options: {
 }): Promise<boolean> {
   try {
     // check if appName exists, throws an error if it doesn't
-    const { stderr } = await exec(`heroku apps:info --app ${options.appName}`, {
-      encoding: 'utf-8',
-    });
-    if (stderr) {
+    const { stderr, stdout } = await exec(
+      `heroku apps:info --app ${options.appName}`,
+      { encoding: 'utf-8' }
+    );
+    if (shouldHandleHerokuError(stderr, stdout)) {
       logger.warn(stderr);
       return false;
     }
