@@ -2,6 +2,15 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.2.2](https://github.com/getlarge/nx-heroku/compare/nx-heroku-0.2.1...nx-heroku-0.2.2) (2023-03-07)
+
+### Bug Fixes
+
+- **nx-heroku:** catch errors from heroku drains:add ([4acebe0](https://github.com/getlarge/nx-heroku/commit/4acebe0455bb941045faab1d345d6a24906a4597))
+- **nx-heroku:** handle pipelines warning ([7898a06](https://github.com/getlarge/nx-heroku/commit/7898a06e390b37cd19c04a6974b98b07a73003af))
+- **nx-heroku:** improve Heroku CLI error and warning handling ([5350364](https://github.com/getlarge/nx-heroku/commit/53503640d2ffccc214fe6543aa7f8c8a9dcd0d23))
+- **nx-heroku:** update `HEROKU_AUTH_FILE` invalid path ([0e8faa7](https://github.com/getlarge/nx-heroku/commit/0e8faa725e7a883aa9a6e20c23da5bc0045d8d3d))
+
 ## [0.2.1](https://github.com/getlarge/nx-heroku/compare/nx-heroku-0.2.0...nx-heroku-0.2.1) (2023-03-03)
 
 ### Bug Fixes
