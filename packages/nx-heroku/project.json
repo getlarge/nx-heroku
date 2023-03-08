@@ -75,25 +75,22 @@
         "baseBranch": "main",
         "trackDeps": false,
         "push": true,
-        "dryRun": true,
         "skipCommitTypes": ["docs", "ci"],
         "commitMessageFormat": "chore(${projectName}): release version ${version} [skip ci]",
         "postTargets": ["nx-heroku:npm", "nx-heroku:github"]
       }
     },
     "github": {
-      "executor": "@jscutlery/semver:github",
+      "executor": "nx:run-commands",
       "options": {
-        "tag": "${tag}",
-        "notes": "${notes}",
-        "draft": "${dryRun}"
+        "command": "node tools/create-release.js -p nx-heroku",
+        "forwardAllArgs": false
       }
     },
     "npm": {
       "executor": "ngx-deploy-npm:deploy",
       "options": {
-        "access": "public",
-        "dryRun": "${dryRun}"
+        "access": "public"
       }
     }
   },

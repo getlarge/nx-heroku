@@ -22,9 +22,20 @@ runs:
         git config user.name "GitHub Bot"
         git config user.email "ed@getlarge.eu"
 
-    - name: Version
+    - name: Bump version and generate changelog
+      shell: bash
+      # is never executed, wrong branch ? wrong base ?
+      run: npx nx affected --base=${{ inputs.last-release }} --target=version --verbose
+
+    - name: Publish packages on NPM
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         NODE_AUTH_TOKEN: ${{ inputs.npm-token }}
       shell: bash
-      run: npx nx affected --base=${{ inputs.last-release }} --target=version --dryRun=false
+      run: npx nx affected --base=${{ inputs.last-release }} --target=npm --verbose
+
+    - name: Create GitHub release
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      shell: bash
+      run: npx nx affected --base=${{ inputs.last-release }} --target=github --verbose
