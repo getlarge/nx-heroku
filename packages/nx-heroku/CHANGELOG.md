@@ -2,6 +2,12 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.2.3](https://github.com/getlarge/nx-heroku/compare/nx-heroku-0.2.2...nx-heroku-0.2.3) (2023-03-10)
+
+### Bug Fixes
+
+- **nx-heroku:** handle update of config vars during merge ([8835a77](https://github.com/getlarge/nx-heroku/commit/8835a7746554191cfb074a65e92f95a2c95207fd))
+
 ## [0.2.2](https://github.com/getlarge/nx-heroku/compare/nx-heroku-0.2.1...nx-heroku-0.2.2) (2023-03-07)
 
 ### Bug Fixes
