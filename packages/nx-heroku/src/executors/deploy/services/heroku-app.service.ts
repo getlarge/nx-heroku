@@ -206,7 +206,12 @@ class HerokuApp {
   }
 
   private async mergeConfigVars(): Promise<void> {
-    const updatedConfigVars = await mergeConfigVars(this.options);
+    const { appName, variables } = this.options;
+    const updatedConfigVars = await mergeConfigVars({
+      appName,
+      variables,
+      update: true,
+    });
     if (updatedConfigVars) {
       this.logger.info(
         `Merged config vars : ${serializeConfigVars(updatedConfigVars)}.`

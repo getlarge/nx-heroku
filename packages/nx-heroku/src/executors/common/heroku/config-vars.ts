@@ -48,28 +48,6 @@ export function serializeConfigVars(
   }, []);
 }
 
-export function addConfigVars(
-  variables: Variables,
-  source: Variables,
-  excludeKeys: string[] = [],
-  prefix?: string
-): SerializedConfigVar[] {
-  const configVars: SerializedConfigVar[] = [];
-  for (const key in variables) {
-    if (excludeKeys.includes(key)) continue;
-    const newValue = variables[key];
-    if (prefix && key.startsWith(prefix)) {
-      const newKey = key.substring(prefix.length);
-      if (!(newKey in source) || source[newKey] !== newValue) {
-        configVars.push(serializeConfigVar(newKey, newValue));
-      }
-    } else if (!prefix && !(key in source)) {
-      configVars.push(serializeConfigVar(key, newValue));
-    }
-  }
-  return configVars;
-}
-
 export async function setConfigVars(options: {
   appName: string;
   configVars: SerializedConfigVar[];
@@ -95,6 +73,34 @@ export async function setConfigVars(options: {
   return undefined;
 }
 
+function addConfigVars(
+  variables: Variables,
+  source: Variables,
+  options: {
+    excludeKeys?: string[];
+    prefix?: string;
+    update?: boolean;
+  }
+): SerializedConfigVar[] {
+  const { excludeKeys = [], update, prefix } = options;
+  const configVars: SerializedConfigVar[] = [];
+
+  function shouldInsert(key: string): boolean {
+    return !(key in source) || (source[key] !== variables[key] && update);
+  }
+
+  for (let key in variables) {
+    if (excludeKeys.includes(key)) continue;
+    if (prefix && !key.startsWith(prefix)) continue;
+    const newValue = variables[key];
+    key = prefix ? key.substring(prefix.length) : key;
+    if (shouldInsert(key)) {
+      configVars.push(serializeConfigVar(key, newValue));
+    }
+  }
+  return configVars;
+}
+
 /*
  * check existing config variables to only push changed or new variables
  */
@@ -102,22 +108,24 @@ export async function mergeConfigVars(options: {
   appName: string;
   variables?: Variables;
   excludeKeys?: string[];
+  update?: boolean;
 }): Promise<Variables> {
-  const { appName, variables = {}, excludeKeys = [] } = options;
+  const { appName, variables = {}, excludeKeys = [], update } = options;
   const currentConfigVars = await getConfigVars(options);
   let configVars: SerializedConfigVar[] = [];
   configVars = [
-    ...configVars,
-    ...addConfigVars(
-      process.env,
-      currentConfigVars,
+    ...addConfigVars(process.env, currentConfigVars, {
       excludeKeys,
-      HEROKU_ENV_VARIABLES_PREFIX
-    ),
+      prefix: HEROKU_ENV_VARIABLES_PREFIX,
+      update,
+    }),
   ];
   configVars = [
     ...configVars,
-    ...addConfigVars(variables, currentConfigVars, excludeKeys),
+    ...addConfigVars(variables, currentConfigVars, {
+      excludeKeys,
+      update,
+    }),
   ];
   return setConfigVars({ appName, configVars });
 }
