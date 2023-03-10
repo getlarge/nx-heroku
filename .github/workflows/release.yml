@@ -56,12 +56,12 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_PAT }}
           node-version: '18'
 
       - name: Release
         uses: ./.github/actions/release
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_PAT }}
           npm-token: ${{ secrets.NPM_TOKEN }}
           last-release: ${{ needs.test.outputs.from }}
