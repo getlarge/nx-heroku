@@ -78,6 +78,7 @@ export class HerokuPromoteService extends HerokuBaseService<PromoteExecutorSchem
     await mergeConfigVars({
       appName,
       variables,
+      update: true,
     });
 
     this.logger.log(`Promoting app ${appName}...`);

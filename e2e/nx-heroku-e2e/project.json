@@ -6,9 +6,11 @@
   "targets": {
     "e2e": {
       "executor": "@nrwl/nx-plugin:e2e",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "target": "nx-heroku:build",
-        "jestConfig": "e2e/nx-heroku-e2e/jest.config.ts"
+        "jestConfig": "e2e/nx-heroku-e2e/jest.config.ts",
+        "coverageDirectory": "coverage/e2e/nx-heroku-e2e"
       },
       "configurations": {
         "ci": {

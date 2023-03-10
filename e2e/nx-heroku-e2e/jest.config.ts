@@ -11,5 +11,6 @@ export default {
     '^.+\\.[tj]s$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/e2e/nx-heroku-e2e',
+  collectCoverageFrom: ['./src/**/*.(t|j)s'],
+  coverageReporters: ['html', ['lcovonly'], 'text'],
 };
