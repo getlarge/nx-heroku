@@ -124,7 +124,7 @@ const getTagName = (semver, projectName) => {
       verbose,
     });
 
-    execSync(`gh release create ${tag} -n ${versionChangelog}`);
+    execSync(`gh release create ${tag} -n "${versionChangelog}"`);
     process.exit(0);
   } catch (error) {
     console.error(error);

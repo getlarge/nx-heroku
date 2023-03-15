@@ -77,8 +77,7 @@
         "trackDeps": false,
         "push": true,
         "skipCommitTypes": ["docs", "ci"],
-        "commitMessageFormat": "chore(${projectName}): release version ${version} [skip ci]",
-        "postTargets": ["nx-heroku:npm", "nx-heroku:github"]
+        "commitMessageFormat": "chore(${projectName}): release version ${version} [skip ci]"
       }
     },
     "github": {
