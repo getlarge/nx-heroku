@@ -26,6 +26,8 @@ export interface DeployExecutorSchema
   branch?: string;
   useForce?: boolean;
   resetRepo?: boolean;
+  useHttps?: boolean;
+  skipDeploy?: boolean;
   watchDelay: number;
   healthcheck?: string;
   checkString?: string;
