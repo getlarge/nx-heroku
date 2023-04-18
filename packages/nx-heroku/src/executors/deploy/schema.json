@@ -158,6 +158,16 @@
       "default": false,
       "type": "boolean"
     },
+    "useHttps": {
+      "description": "Set this to true if you want to use https instead of ssh for git push",
+      "default": false,
+      "type": "boolean"
+    },
+    "skipDeploy": {
+      "description": "Set this to true if you want to bypass `git push` to Heroku remote",
+      "default": false,
+      "type": "boolean"
+    },
     "watchDelay": {
       "description": "Time (in seconds) to wait before closing deploy listener. Defaults to 10 seconds",
       "type": "number",

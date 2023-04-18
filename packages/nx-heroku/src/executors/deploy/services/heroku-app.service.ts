@@ -318,15 +318,19 @@ class HerokuApp {
   }
 
   private createDeployProcess(
-    signal: AbortSignal
+    signal: AbortSignal,
+    useHttps = false
   ): ChildProcessWithoutNullStreams {
-    const { apiKey, appName, branch, useForce } = this.options;
+    const { apiKey, appName, branch, remoteName, useForce } = this.options;
     // calling git push with option progress, it is required to push output to stdout
     // otherwise listening to stdout and stderr would not work, and spawn options would require stdio: 'inherit'
+    // trying this instead of this.options.remoteName to get past some auth issue
+    const destination = useHttps
+      ? `https://heroku:${apiKey}@git.heroku.com/${appName}.git`
+      : remoteName;
     const args = [
       'push',
-      // trying this instead of this.options.remoteName to get past some auth issue
-      `https://heroku:${apiKey}@git.heroku.com/${appName}.git`,
+      destination,
       `${branch}:refs/heads/main`,
       '--progress',
     ];
@@ -334,6 +338,9 @@ class HerokuApp {
       args.push('--force');
     }
 
+    this.logger.info(
+      `Pushing to Heroku app ${appName} (${destination}) on branch ${branch}`
+    );
     const push = spawn('git', args, { signal });
     push.stdout
       .setEncoding('utf-8')
@@ -353,19 +360,24 @@ class HerokuApp {
       branch,
       remoteName,
       resetRepo = false,
+      useHttps = false,
+      skipDeploy = false,
       watchDelay = 0,
     } = this.options;
+    if (skipDeploy) {
+      this.logger.info('Skipping deploy');
+      return;
+    }
     if (resetRepo) {
       const remoteBranch = await getGitRemoteBranch({ remoteName });
       await this.resetAppRepo(appName, remoteBranch);
     }
-    this.logger.info(`Pushing to Heroku app ${appName} on branch ${branch}`);
     // Wait for [watchDelay] seconds once the build started to ensure it works and kill child process
     // if watchDelay === 0, the process will not be aborted
     await new Promise<void>((resolve, reject) => {
       const controller = new AbortController();
       const { signal } = controller;
-      const push = this.createDeployProcess(signal);
+      const push = this.createDeployProcess(signal, useHttps);
       const timer = setTimeout(() => {
         if (watchDelay) {
           controller.abort();
