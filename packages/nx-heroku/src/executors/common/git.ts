@@ -69,3 +69,14 @@ export async function getGitRemoteBranch(options: {
   );
   return stdout?.trim();
 }
+
+/**
+ * @returns {Promise<string>} size (eg: 1.06 GiB)
+ */
+export async function getGitRepoSizePack(): Promise<string> {
+  const { stdout } = await exec(
+    `git count-objects -H -v | grep 'size-pack' | cut -d':' -f2`,
+    { encoding: 'utf-8' }
+  );
+  return stdout?.trim();
+}

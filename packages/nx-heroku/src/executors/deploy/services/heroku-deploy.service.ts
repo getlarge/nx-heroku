@@ -4,6 +4,7 @@ import { Inject, Service } from 'typedi';
 import { Environment, EXECUTOR_CONTEXT } from '../../common/constants';
 import {
   getGitEmail,
+  getGitRepoSizePack,
   getGitUserName,
   setGitEmail,
   setGitUserName,
@@ -73,8 +74,15 @@ export class HerokuDeployService extends HerokuBaseService<DeployExecutorSchema>
     );
     // If the Repo clone is shallow, make it unshallow
     if (isShallow === 'true\n') {
+      this.logger.warn(
+        'The git repository is shallow, fetching all commits to get the correct size of the repository'
+      );
       await exec('git fetch --prune --unshallow');
     }
+
+    // show git repo size
+    const size = await getGitRepoSizePack();
+    this.logger.info(`Git repo size: ${size}`);
 
     await this.setupHerokuAuth();
   }
