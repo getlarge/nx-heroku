@@ -25,7 +25,7 @@ export async function getConfigVars(options: {
     const parts = line.split(':');
     const key = parts.shift().trim();
     const value = parts.map((el) => el.trim()).join(':');
-    acc[key] = value;
+    if (key && value) acc[key] = value;
     return acc;
   }, {});
 }
