@@ -2,6 +2,18 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.3.0](https://github.com/getlarge/nx-heroku/compare/nx-heroku-0.2.3...nx-heroku-0.3.0) (2023-04-18)
+
+### Features
+
+- **nx-heroku:** add function to show repo size ([eedcc26](https://github.com/getlarge/nx-heroku/commit/eedcc267e0def84b43ad5d5e2ea2a3f43a72cc0d))
+- **nx-heroku:** add option for deployment destination ([85b063f](https://github.com/getlarge/nx-heroku/commit/85b063f76e18c23d9b6aa54ad207088335fed280))
+
+### Bug Fixes
+
+- **nx-heroku:** only return config vars that are defined ([a9c4251](https://github.com/getlarge/nx-heroku/commit/a9c4251a8310659273b5eacb58fd4ee278e1a387))
+- separate post targets and add quotes to generated changelog ([02a0f88](https://github.com/getlarge/nx-heroku/commit/02a0f8822672ea2d2931c20f424056b91cec5b1b))
+
 ## [0.2.3](https://github.com/getlarge/nx-heroku/compare/nx-heroku-0.2.2...nx-heroku-0.2.3) (2023-03-10)
 
 ### Bug Fixes
