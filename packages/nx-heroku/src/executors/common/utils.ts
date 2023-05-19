@@ -16,9 +16,18 @@ export function parseJsonString(stdout: string) {
 }
 
 export function parseTable(stdout: string) {
-  const lines = removeConsoleOutputColors(stdout)?.split('\n');
-  // remove header from response
+  const lines = removeConsoleOutputColors(stdout)
+    ?.split('\n')
+    ?.map((line) => line?.trim());
+  // remove header from response, column names
   lines.shift();
+  // remove separator
+  if (
+    lines[0]?.trim()?.length === 0 ||
+    lines[0]?.includes('──────────────────────────────')
+  ) {
+    lines.shift();
+  }
   return lines;
 }
 
