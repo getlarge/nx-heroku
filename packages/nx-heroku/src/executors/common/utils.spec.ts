@@ -41,6 +41,15 @@ const configVarsRawOutput = `
 [34m[32mYARN2_SKIP_PRUNING[34m[39m:         true
 `;
 
+const webhooksRawOutput = `Webhook ID                           URL                                                                                       Include                    Level
+ ──────────────────────────────────── ───────────────────────────────────────────────────────────────────────────────────────── ────────────────────────── ─────
+ 1965e28c-b99f-4c14-a64c-582efc7667ae https://webhook-handler/receive api:build,dyno sync
+ 682df0e5-67f8-4a3b-a71d-78451470b997 https://webhook-handler/receive api:build,api:release,dyno sync
+ 5541c980-0835-4063-bc70-9a11d5b8a016 https://webhook-handler/receive api:build,api:release,dyno notify
+ bffc659a-d802-4761-86d5-7f343c135eca https://webhook-handler/receive api:addon sync
+ 9caf5cfb-ceac-4512-b197-fab47b3629f2 https://webhook-handler/receive api:formation sync
+`;
+
 const configVarsClean = `=== s1-auth-service-staging Config Vars
 CLUSTER_ENABLED:            true
 DISK_STORAGE_TRESHOLD:      161061273600
@@ -60,6 +69,7 @@ TAG:                        v1.9.4
 USE_YARN_CACHE:             undefined
 YARN2_SKIP_PRUNING:         true`;
 
+// eslint-disable-next-line max-lines-per-function
 describe('Utils', () => {
   it.todo('expandOptions - should expand options');
 
@@ -94,5 +104,23 @@ describe('Utils', () => {
     const result = parseTable(configVarsRawOutput);
     expect(result).toBeDefined();
     expect(result).toHaveLength(17);
+    expect(
+      result
+        .shift()
+        .split(':')
+        .map((el) => el.trim())
+    ).toEqual(['CLUSTER_ENABLED', 'true']);
+  });
+
+  it('parseTable - should parse raw webhooks string', () => {
+    const result = parseTable(webhooksRawOutput);
+    expect(result).toBeDefined();
+    expect(result).toHaveLength(5);
+    expect(result.shift().split(' ')).toEqual([
+      '1965e28c-b99f-4c14-a64c-582efc7667ae',
+      'https://webhook-handler/receive',
+      'api:build,dyno',
+      'sync',
+    ]);
   });
 });
