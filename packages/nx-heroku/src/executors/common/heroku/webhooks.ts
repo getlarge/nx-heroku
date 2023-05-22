@@ -1,12 +1,45 @@
 import { logger } from '@nrwl/devkit';
 import isURL from 'validator/lib/isURL';
+import isUUID from 'validator/lib/isUUID';
 
 import { exec, parseTable } from '../utils';
 import { HerokuError, shouldHandleHerokuError } from './error';
 
-export async function getWebhooks(
-  appName: string
-): Promise<{ id: string; url: string; include: string; level: string }[]> {
+export type Webhook = {
+  id: string;
+  url: string;
+  include: string;
+  level: string;
+};
+
+export function parseWebhooksTable(table: string[]): Webhook[] {
+  /** key order matters */
+  const validators = {
+    id: isUUID,
+    url: isURL,
+    include: () => true,
+    level: (x?: string) => !x || ['sync', 'notify'].includes(x),
+  };
+  return table
+    .map((webhook) => {
+      const parts = webhook.split(' ');
+      const webhookIsValid =
+        parts.length === 4 &&
+        Object.entries(validators).every(([key, validator], i) => {
+          if (validator(parts[i])) {
+            return true;
+          }
+          logger.warn(`Invalid ${key} (${parts[i]}) for webhook ${webhook}`);
+          return false;
+        });
+      if (!webhookIsValid) return null;
+      const [id, url, include, level] = parts;
+      return { id, url, include, level };
+    })
+    .filter(Boolean);
+}
+
+export async function getWebhooks(appName: string): Promise<Webhook[]> {
   const { stdout, stderr } = await exec(`heroku webhooks --app ${appName}`, {
     encoding: 'utf-8',
   });
@@ -14,11 +47,9 @@ export async function getWebhooks(
     logger.warn(HerokuError.cleanMessage(stderr));
     return [];
   }
-  const res = parseTable(stdout);
-  return res.map((webhook) => {
-    const [id, url, include, level] = webhook.split(' ');
-    return { id, url, include, level };
-  });
+
+  const table = parseTable(stdout);
+  return parseWebhooksTable(table);
 }
 
 // eslint-disable-next-line max-lines-per-function

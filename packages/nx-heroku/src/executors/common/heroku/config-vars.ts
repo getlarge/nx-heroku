@@ -10,6 +10,16 @@ export type SerializedConfigVar =
 
 export type Variables = Record<string, string>;
 
+export function parseConfigVarsTable(table: string[]): Variables {
+  return table.reduce((acc, line) => {
+    const parts = line.split(':');
+    const key = parts.shift().trim();
+    const value = parts.map((el) => el.trim()).join(':');
+    key && (acc[key] = value);
+    return acc;
+  }, {});
+}
+
 export async function getConfigVars(options: {
   appName: string;
 }): Promise<Record<string, string>> {
@@ -18,16 +28,10 @@ export async function getConfigVars(options: {
     encoding: 'utf-8',
   });
   const rawAppEnv = parseTable(configVars) || [];
-  if (rawAppEnv.includes(`Invalid credentials provided`)) {
+  if (rawAppEnv[0]?.includes(`Invalid credentials provided`)) {
     throw new Error('Invalid credentials provided');
   }
-  return rawAppEnv.reduce((acc, line) => {
-    const parts = line.split(':');
-    const key = parts.shift().trim();
-    const value = parts.map((el) => el.trim()).join(':');
-    if (key && value) acc[key] = value;
-    return acc;
-  }, {});
+  return parseConfigVarsTable(rawAppEnv);
 }
 
 export function serializeConfigVar(
@@ -42,10 +46,9 @@ export function serializeConfigVars(
   variables: Variables,
   quote: ConfigVarQuote = `'`
 ): SerializedConfigVar[] {
-  return Object.entries(variables).reduce((acc, [key, value]) => {
-    acc.push(serializeConfigVar(key, value, quote));
-    return acc;
-  }, []);
+  return Object.entries(variables).map(([key, value]) =>
+    serializeConfigVar(key, value, quote)
+  );
 }
 
 export async function setConfigVars(options: {

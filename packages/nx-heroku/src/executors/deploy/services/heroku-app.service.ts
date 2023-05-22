@@ -344,7 +344,7 @@ class HerokuApp {
     const push = spawn('git', args, { signal });
     push.stdout
       .setEncoding('utf-8')
-      //? if data contains `Everything up-to-date`, should we still restart the app ?
+      //? stop watch when data matches ^Total\s+(\d+)\s+\(delta\s+(\d+)\),\s+reused\s+(\d+)\s+\(delta\s+(\d+)\),\s+pack-reused\s+(\d+)
       .on('data', (data) => this.logger.info(data?.trim()));
 
     push.stderr
@@ -375,6 +375,7 @@ class HerokuApp {
     // Wait for [watchDelay] seconds once the build started to ensure it works and kill child process
     // if watchDelay === 0, the process will not be aborted
     await new Promise<void>((resolve, reject) => {
+      // TODO: const signal =  AbortSignal.timeout(watchDelay);
       const controller = new AbortController();
       const { signal } = controller;
       const push = this.createDeployProcess(signal, useHttps);

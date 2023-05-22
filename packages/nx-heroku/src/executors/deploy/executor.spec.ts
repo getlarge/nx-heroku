@@ -131,6 +131,10 @@ describe('Deploy Executor', () => {
     expect(herokuDeployService.close).toBeCalled();
   });
 
+  // TODO: test
+  // validateOptions
+  // setEnvironmentVariables
+  // setupHeroku
   it('should instantiate the heroku app factory', async () => {
     options.config = ['development', 'production'];
     herokuDeployService['validateOptions'] = jest.fn();

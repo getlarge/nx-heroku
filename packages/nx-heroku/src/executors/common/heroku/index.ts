@@ -2,7 +2,7 @@ import { exec } from '../utils';
 import { AppName } from './apps';
 
 export async function dynoCommand(options: {
-  command: 'kill' | 'restart' | 'stop';
+  command: 'kill' | 'restart' | 'stop' | 'scale';
   appName: AppName;
 }) {
   const { appName, command } = options;
