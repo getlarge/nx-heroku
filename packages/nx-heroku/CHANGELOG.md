@@ -2,6 +2,12 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.3.1](https://github.com/getlarge/nx-heroku/compare/nx-heroku-0.3.0...nx-heroku-0.3.1) (2023-05-22)
+
+### Bug Fixes
+
+- **nx-heroku:** make Heroku CLI table parsing more accurate ([92dd584](https://github.com/getlarge/nx-heroku/commit/92dd584c0125da3f88cce82f01d40e213700b1c4))
+
 ## [0.3.0](https://github.com/getlarge/nx-heroku/compare/nx-heroku-0.2.3...nx-heroku-0.3.0) (2023-04-18)
 
 ### Features
