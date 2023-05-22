@@ -46,10 +46,9 @@ export function serializeConfigVars(
   variables: Variables,
   quote: ConfigVarQuote = `'`
 ): SerializedConfigVar[] {
-  return Object.entries(variables).reduce((acc, [key, value]) => {
-    acc.push(serializeConfigVar(key, value, quote));
-    return acc;
-  }, []);
+  return Object.entries(variables).map(([key, value]) =>
+    serializeConfigVar(key, value, quote)
+  );
 }
 
 export async function setConfigVars(options: {
