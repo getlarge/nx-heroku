@@ -31,6 +31,26 @@
       "type": "string",
       "example": "my-org"
     },
+    "region": {
+      "description": "Heroku region, used to create the app. See https://devcenter.heroku.com/articles/regions for more information.",
+      "type": "string",
+      "example": "us",
+      "default": "eu",
+      "enum": [
+        "us",
+        "eu",
+        "dublin",
+        "frankfurt",
+        "london",
+        "montreal",
+        "mumbai",
+        "oregon",
+        "singapore",
+        "sydney",
+        "tokyo",
+        "virginia"
+      ]
+    },
     "serviceUser": {
       "description": "Heroku team member used to automate deployment",
       "format": "email",

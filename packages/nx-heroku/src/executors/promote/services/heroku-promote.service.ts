@@ -44,7 +44,13 @@ export class HerokuPromoteService extends HerokuBaseService<PromoteExecutorSchem
   private async checkAppExistsInPipeline(
     pipelineName: string
   ): Promise<string> {
-    const { appNamePrefix, config: environment, org, debug } = this.options;
+    const {
+      appNamePrefix,
+      config: environment,
+      org,
+      debug,
+      region,
+    } = this.options;
     const { projectName } = this.context;
     const appName = getAppName({
       appNamePrefix,
@@ -58,6 +64,7 @@ export class HerokuPromoteService extends HerokuBaseService<PromoteExecutorSchem
         appName,
         org,
         remoteName: getRemoteName(appName),
+        region,
       });
       await addAppToPipeline({
         appName,

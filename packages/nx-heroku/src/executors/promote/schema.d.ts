@@ -4,4 +4,5 @@ export interface PromoteExecutorSchema extends ExecutorBaseSchema {
   org?: string;
   serviceUser: string;
   variables?: Record<string, string>;
+  region?: string;
 }
