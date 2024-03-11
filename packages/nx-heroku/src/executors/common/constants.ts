@@ -1,6 +1,6 @@
 import type { ExecutorContext } from '@nrwl/devkit';
-import { homedir } from 'os';
-import { join } from 'path';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 import { Token } from 'typedi';
 
 // TODO: on windows path is _netrc

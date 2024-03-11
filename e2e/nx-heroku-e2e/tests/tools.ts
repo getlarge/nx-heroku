@@ -9,10 +9,10 @@ import {
   uniq,
   updateFile,
 } from '@nrwl/nx-plugin/testing';
-import { execSync as oGExecSync } from 'child_process';
-import { copyFileSync } from 'fs';
+import { execSync as oGExecSync } from 'node:child_process';
+import { copyFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { PackageJson } from 'nx/src/utils/package-json';
-import { join } from 'path';
 import {
   createNetRcFile,
   removeNetRcFile,

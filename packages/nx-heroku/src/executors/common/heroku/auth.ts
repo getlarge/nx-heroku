@@ -1,4 +1,4 @@
-import { rm, writeFile } from 'fs/promises';
+import { rm, writeFile } from 'node:fs/promises';
 import isEmail from 'validator/lib/isEmail';
 import isUUID from 'validator/lib/isUUID';
 

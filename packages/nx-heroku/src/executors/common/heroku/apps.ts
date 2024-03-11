@@ -1,5 +1,5 @@
 import { logger } from '@nrwl/devkit';
-import { ExecException } from 'child_process';
+import { ExecException } from 'node:child_process';
 
 import {
   Environment,

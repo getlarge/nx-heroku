@@ -1,7 +1,7 @@
-import { exec as cbBasedExec, ExecException } from 'child_process';
 import { expand } from 'dotenv-expand';
 import { cloneDeep, isString, merge, pickBy } from 'lodash';
-import { promisify } from 'util';
+import { exec as cbBasedExec, ExecException } from 'node:child_process';
+import { promisify } from 'node:util';
 
 import { ASCII_COLORS_REGEX } from './constants';
 

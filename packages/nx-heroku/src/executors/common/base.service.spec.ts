@@ -1,4 +1,4 @@
-import { existsSync } from 'fs';
+import { existsSync } from 'node:fs';
 
 import { HEROKU_AUTH_FILE } from './constants';
 import { BaseOptions, HerokuBaseService } from './heroku/base.service';

@@ -1,14 +1,14 @@
 /* eslint-disable max-lines */
 import { ExecutorContext } from '@nrwl/devkit';
 import axios from 'axios';
+import { toNumber } from 'lodash';
 import {
   ChildProcessWithoutNullStreams,
   ExecException,
   spawn,
-} from 'child_process';
-import { readFile, writeFile } from 'fs/promises';
-import { toNumber } from 'lodash';
-import { join } from 'path';
+} from 'node:child_process';
+import { readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { Inject, Service } from 'typedi';
 
 import {
@@ -137,7 +137,7 @@ class HerokuApp {
   private async createProcfile(): Promise<void> {
     const { procfile, projectName } = this.options;
     if (procfile) {
-      const procfilePath = `${this.appsDir}/${projectName}/${PROCFILE}`;
+      const procfilePath = join(this.appsDir, projectName, PROCFILE);
       await writeFile(join(process.cwd(), procfilePath), procfile);
       await this.addAndCommitFile(projectName, PROCFILE);
     }
