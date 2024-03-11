@@ -6,6 +6,7 @@ export interface DeployExecutorSchema
   config: Environment[];
   // org not required to allow for personal apps
   org?: string;
+  region?: string;
   repositoryName?: string;
   buildPacks: string[];
   variables?: Record<string, string>;

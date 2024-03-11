@@ -120,7 +120,7 @@ class HerokuApp {
       //? allow custom commit message with format from 'util'
       // const COMMIT_MESSAGE_TEMPLATE = '%s(%s): %s';
       // format(COMMIT_MESSAGE_TEMPLATE, conf.type, conf.scope, conf.message);
-      const path = `${this.appsDir}/${projectName}/${fileName}`;
+      const path = join(this.appsDir, projectName, fileName);
       await exec(
         `git add ${path} && git commit -m "ci(${projectName}): add ${fileName}" -n --no-gpg-sign`
       );
@@ -151,7 +151,9 @@ class HerokuApp {
     if (buildPacks.includes(buildPackName)) {
       const srcPath = join(
         process.cwd(),
-        `${this.appsDir}/${projectName}/${buildPackFile}`
+        this.appsDir,
+        projectName,
+        buildPackFile
       );
       const destPath = join(process.cwd(), buildPackFile);
       const srcBuildPackFile = await readFile(srcPath, 'utf-8');
@@ -186,7 +188,7 @@ class HerokuApp {
   }
 
   private async addRemote(): Promise<boolean> {
-    const { appName, org, remoteName } = this.options;
+    const { appName, org, remoteName, region } = this.options;
     try {
       await createAppRemote({ appName, remoteName });
     } catch (error) {
@@ -195,6 +197,7 @@ class HerokuApp {
           appName,
           org,
           remoteName,
+          region,
         });
         this.logger.info(`Created app ${appName} on git remote ${remoteName}.`);
         return true;
