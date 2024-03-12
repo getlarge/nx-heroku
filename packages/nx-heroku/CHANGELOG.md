@@ -2,6 +2,18 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.4.0](https://github.com/getlarge/nx-heroku/compare/nx-heroku-0.3.1...nx-heroku-0.4.0) (2024-03-12)
+
+### Features
+
+- add support for custom region in `deploy` executor ([9896e7b](https://github.com/getlarge/nx-heroku/commit/9896e7bb69184264d1ba663a4412ffadcff470ec))
+- add support for custom region in `promote` executor ([3fc5c89](https://github.com/getlarge/nx-heroku/commit/3fc5c89267e544319e46e3c52ff9012c09e1bc1f))
+- **nx-heroku:** create nodes by inferring project config ([1301231](https://github.com/getlarge/nx-heroku/commit/130123176df0601bae6a8647afdb0e911868848e))
+
+### Bug Fixes
+
+- **nx-heroku:** only create Procfile when file does not exist ([c407d64](https://github.com/getlarge/nx-heroku/commit/c407d649829905767fe5fd545046560a009e8a12))
+
 ## [0.3.1](https://github.com/getlarge/nx-heroku/compare/nx-heroku-0.3.0...nx-heroku-0.3.1) (2023-05-22)
 
 ### Bug Fixes
