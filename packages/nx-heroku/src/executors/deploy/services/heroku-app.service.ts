@@ -109,7 +109,7 @@ class HerokuApp {
     public logger: LoggerInterface
   ) {
     this.appsDir =
-      context.nxJsonConfiguration?.workspaceLayout?.appsDir || 'apps';
+      context.nxJsonConfiguration?.workspaceLayout?.appsDir ?? 'apps';
   }
 
   private async addAndCommitFile(

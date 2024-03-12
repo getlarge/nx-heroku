@@ -1,4 +1,8 @@
-import { ProjectConfiguration, serializeJson } from '@nx/devkit';
+import {
+  NxJsonConfiguration,
+  ProjectConfiguration,
+  serializeJson,
+} from '@nx/devkit';
 import {
   cleanup,
   ensureNxProject,
@@ -61,6 +65,10 @@ export function commitTmpProjectFiles() {
 // are not dependant on one another.
 export function setup() {
   ensureNxProject(PLUGIN_NAME, PLUGIN_PATH);
+  const nxJsonPath = 'nx.json';
+  const nxJson: NxJsonConfiguration = readJson(nxJsonPath);
+  nxJson.workspaceLayout = { appsDir: 'apps', libsDir: 'libs' };
+  updateFile(nxJsonPath, serializeJson(nxJson));
   copyScript('postbuild');
   initGit();
   commitTmpProjectFiles();
@@ -112,8 +120,10 @@ export async function createProject(prefix: string = 'nx-heroku'): Promise<{
   updateProjectConfig: (config: ProjectConfiguration) => void;
 }> {
   const projectName = uniq(prefix);
-  await runNxCommandAsync(`generate @nx/node:app ${projectName}`);
-  const projectConfigPath = `apps/${projectName}/project.json`;
+  await runNxCommandAsync(
+    `generate @nx/node:app ${projectName} --directory=apps`
+  );
+  const projectConfigPath = join('apps', projectName, 'project.json');
   return {
     projectName,
     getProjectConfig: () => readJson(projectConfigPath),
