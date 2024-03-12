@@ -7,7 +7,7 @@ import {
   ExecException,
   spawn,
 } from 'node:child_process';
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { Inject, Service } from 'typedi';
 
@@ -136,9 +136,17 @@ class HerokuApp {
    */
   private async createProcfile(): Promise<void> {
     const { procfile, projectName } = this.options;
-    if (procfile) {
-      const procfilePath = join(this.appsDir, projectName, PROCFILE);
-      await writeFile(join(process.cwd(), procfilePath), procfile);
+    const procfilePath = join(
+      process.cwd(),
+      this.appsDir,
+      projectName,
+      PROCFILE
+    );
+    const procfileExists = await stat(procfilePath)
+      .then(() => true)
+      .catch(() => false);
+    if (procfile && !procfileExists) {
+      await writeFile(procfilePath, procfile);
       await this.addAndCommitFile(projectName, PROCFILE);
     }
   }
