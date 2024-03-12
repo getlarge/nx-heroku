@@ -74,8 +74,10 @@
     },
     "npm": {
       "executor": "ngx-deploy-npm:deploy",
+      "dependsOn": ["build"],
       "options": {
-        "access": "public"
+        "access": "public",
+        "distFolderPath": "dist/packages/nx-heroku"
       }
     }
   },
