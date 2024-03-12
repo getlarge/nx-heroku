@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import { ExecutorContext } from '@nrwl/devkit';
+import { ExecutorContext } from '@nx/devkit';
 import axios from 'axios';
 import { toNumber } from 'lodash';
 import {

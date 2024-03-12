@@ -1,4 +1,4 @@
-import { ProjectConfiguration, serializeJson } from '@nrwl/devkit';
+import { ProjectConfiguration, serializeJson } from '@nx/devkit';
 import {
   cleanup,
   ensureNxProject,
@@ -8,7 +8,7 @@ import {
   tmpProjPath,
   uniq,
   updateFile,
-} from '@nrwl/nx-plugin/testing';
+} from '@nx/plugin/testing';
 import { execSync as oGExecSync } from 'node:child_process';
 import { copyFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -112,7 +112,7 @@ export async function createProject(prefix: string = 'nx-heroku'): Promise<{
   updateProjectConfig: (config: ProjectConfiguration) => void;
 }> {
   const projectName = uniq(prefix);
-  await runNxCommandAsync(`generate @nrwl/node:app ${projectName}`);
+  await runNxCommandAsync(`generate @nx/node:app ${projectName}`);
   const projectConfigPath = `apps/${projectName}/project.json`;
   return {
     projectName,

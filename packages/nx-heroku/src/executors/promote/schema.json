@@ -1,7 +1,6 @@
 {
   "$schema": "http://json-schema.org/schema",
   "version": 2,
-  "cli": "nx",
   "title": "Promote executor",
   "description": "",
   "type": "object",
@@ -59,7 +58,10 @@
     "variables": {
       "description": "Heroku config variables",
       "type": "object",
-      "example": { "SERVER_URL": "value", "DB_URL": "value" }
+      "example": {
+        "SERVER_URL": "value",
+        "DB_URL": "value"
+      }
     },
     "debug": {
       "type": "boolean"

@@ -1,4 +1,4 @@
-import { runNxCommandAsync } from '@nrwl/nx-plugin/testing';
+import { runNxCommandAsync } from '@nx/plugin/testing';
 import {
   createProject,
   prepareProjectForDeployment,

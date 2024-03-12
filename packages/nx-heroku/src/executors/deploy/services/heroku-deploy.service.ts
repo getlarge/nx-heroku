@@ -1,4 +1,4 @@
-import type { ExecutorContext } from '@nrwl/devkit';
+import type { ExecutorContext } from '@nx/devkit';
 import { Inject, Service } from 'typedi';
 
 import { Environment, EXECUTOR_CONTEXT } from '../../common/constants';

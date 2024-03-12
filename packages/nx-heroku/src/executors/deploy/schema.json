@@ -1,7 +1,6 @@
 {
   "$schema": "http://json-schema.org/schema",
   "type": "object",
-  "cli": "nx",
   "properties": {
     "config": {
       "type": "array",
@@ -69,7 +68,10 @@
       "additionalProperties": {
         "type": "string"
       },
-      "example": { "SERVER_URL": "value", "DB_URL": "value" }
+      "example": {
+        "SERVER_URL": "value",
+        "DB_URL": "value"
+      }
     },
     "buildPacks": {
       "description": "Ordered list of builpacks that should be added, see https://devcenter.heroku.com/articles/using-multiple-buildpacks-for-an-app.",

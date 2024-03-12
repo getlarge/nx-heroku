@@ -1,4 +1,4 @@
-import { logger } from '@nrwl/devkit';
+import { logger } from '@nx/devkit';
 
 import { Environment } from '../constants';
 import { exec, parseJsonString } from '../utils';

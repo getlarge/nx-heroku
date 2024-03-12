@@ -1,5 +1,5 @@
 /* eslint-disable max-lines-per-function */
-import type { ExecutorContext } from '@nrwl/devkit';
+import type { ExecutorContext } from '@nx/devkit';
 import Container from 'typedi';
 
 import { type LoggerInterface, ConsoleLogger } from '../common/logger';

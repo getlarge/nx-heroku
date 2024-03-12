@@ -5,19 +5,20 @@
   "sourceRoot": "e2e/nx-heroku-e2e/src",
   "targets": {
     "e2e": {
-      "executor": "@nrwl/nx-plugin:e2e",
+      "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "target": "nx-heroku:build",
         "jestConfig": "e2e/nx-heroku-e2e/jest.config.ts",
-        "coverageDirectory": "coverage/e2e/nx-heroku-e2e"
+        "coverageDirectory": "coverage/e2e/nx-heroku-e2e",
+        "runInBand": true,
+        "passWithNoTests": false
       },
       "configurations": {
         "ci": {
-          "ci": true,
-          "codeCoverage": true
+          "runInBand": true
         }
-      }
+      },
+      "dependsOn": ["nx-heroku:build"]
     }
   },
   "tags": [],

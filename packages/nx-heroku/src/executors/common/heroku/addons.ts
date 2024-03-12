@@ -1,4 +1,4 @@
-import { logger } from '@nrwl/devkit';
+import { logger } from '@nx/devkit';
 
 import { exec, parseJsonString } from '../utils';
 import { HerokuError, shouldHandleHerokuError } from './error';
