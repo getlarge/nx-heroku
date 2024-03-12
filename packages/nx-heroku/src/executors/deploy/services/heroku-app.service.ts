@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import { ExecutorContext } from '@nrwl/devkit';
+import { ExecutorContext } from '@nx/devkit';
 import axios from 'axios';
 import { toNumber } from 'lodash';
 import {
@@ -109,7 +109,7 @@ class HerokuApp {
     public logger: LoggerInterface
   ) {
     this.appsDir =
-      context.nxJsonConfiguration?.workspaceLayout?.appsDir || 'apps';
+      context.nxJsonConfiguration?.workspaceLayout?.appsDir ?? 'apps';
   }
 
   private async addAndCommitFile(

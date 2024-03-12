@@ -292,7 +292,7 @@ The `heroku-postbuild` script is used to build the application, it is executed a
 `tools/heroku/postbuild.js`
 
 ```js
-const { createPackageJson, createLockFile } = require('@nrwl/devkit');
+const { createPackageJson, createLockFile } = require('@nx/devkit');
 const { execSync } = require('child_process');
 const { writeFileSync } = require('fs');
 

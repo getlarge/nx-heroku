@@ -1,4 +1,4 @@
-import { logger } from '@nrwl/devkit';
+import { logger } from '@nx/devkit';
 import { URL } from 'node:url';
 import isURL from 'validator/lib/isURL';
 

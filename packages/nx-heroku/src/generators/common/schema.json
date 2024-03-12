@@ -1,6 +1,5 @@
 {
   "$schema": "http://json-schema.org/schema",
-  "cli": "nx",
   "$id": "NxHeroku-deploy",
   "title": "@aloes/nx-heroku:deploy target generator",
   "type": "object",

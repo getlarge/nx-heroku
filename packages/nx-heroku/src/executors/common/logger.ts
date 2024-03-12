@@ -1,4 +1,4 @@
-import { logger } from '@nrwl/devkit';
+import { logger } from '@nx/devkit';
 import Container, { Constructable } from 'typedi';
 
 import { isExecException } from './utils';

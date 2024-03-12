@@ -1,4 +1,4 @@
-import { logger } from '@nrwl/devkit';
+import { logger } from '@nx/devkit';
 import isURL from 'validator/lib/isURL';
 import isUUID from 'validator/lib/isUUID';
 

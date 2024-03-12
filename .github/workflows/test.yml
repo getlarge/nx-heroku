@@ -35,17 +35,17 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16, 18]
+        node-version: [18, 20]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # We need to fetch all branches and commits so that Nx affected has a base to compare against.
           fetch-depth: 0
 
       - name: Derive appropriate SHAs for base and head for `nx affected` commands
         id: set-shas
-        uses: nrwl/nx-set-shas@v3
+        uses: nrwl/nx-set-shas@v4
 
       - name: Setup
         uses: ./.github/actions/setup
@@ -61,7 +61,7 @@ jobs:
 
       - name: Check tests coverage reports existence
         id: has-coverage
-        uses: andstor/file-existence-action@v2
+        uses: andstor/file-existence-action@v3
         with:
           files: coverage
 
@@ -72,10 +72,10 @@ jobs:
       # should be uploaded only once theoretically...
       - name: Upload merged coverage reports
         if: steps.has-coverage.outputs.files_exists == 'true'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: coverage
           path: coverage
+          name: coverage-${{ matrix.node-version }}
           retention-days: 5
 
     outputs:
@@ -88,7 +88,7 @@ jobs:
 
     # TODO: move in separate workflow
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # Shallow clones should be disabled for a better relevancy of Sonar analysis
           fetch-depth: 0
@@ -102,9 +102,9 @@ jobs:
 
       - name: Download merged coverage reports
         if: needs.test.outputs.has-coverage == 'true'
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: coverage
+          name: coverage-20
           path: coverage
 
       - name: SonarCloud Scan

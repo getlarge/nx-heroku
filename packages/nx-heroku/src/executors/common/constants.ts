@@ -1,4 +1,4 @@
-import type { ExecutorContext } from '@nrwl/devkit';
+import type { ExecutorContext } from '@nx/devkit';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { Token } from 'typedi';

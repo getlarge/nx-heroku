@@ -1,5 +1,5 @@
 /* eslint-disable max-lines-per-function */
-import { ExecutorContext } from '@nrwl/devkit';
+import { ExecutorContext } from '@nx/devkit';
 import Container from 'typedi';
 
 import { getAppName } from '../common/heroku';

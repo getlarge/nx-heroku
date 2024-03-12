@@ -1,4 +1,4 @@
-import type { Tree } from '@nrwl/devkit';
+import type { Tree } from '@nx/devkit';
 
 import { GeneratorSchema } from '../common/schema';
 import { updateProjects } from '../common/utils';

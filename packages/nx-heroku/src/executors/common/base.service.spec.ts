@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 
 import { HEROKU_AUTH_FILE } from './constants';
 import { BaseOptions, HerokuBaseService } from './heroku/base.service';
-import { type LoggerInterface, ConsoleLogger } from './logger';
+import { ConsoleLogger, type LoggerInterface } from './logger';
 
 const options: BaseOptions = {
   email: 'email@test.com',

@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { type ExecutorContext } from '@nrwl/devkit';
+import { type ExecutorContext } from '@nx/devkit';
 import { Container } from 'typedi';
 
 import { EXECUTOR_CONTEXT } from '../common/constants';
