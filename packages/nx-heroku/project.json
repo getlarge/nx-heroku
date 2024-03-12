@@ -62,7 +62,7 @@
         "trackDeps": false,
         "push": true,
         "skipCommitTypes": ["docs", "ci"],
-        "commitMessageFormat": "chore(${projectName}): release version ${version} [skip ci]"
+        "commitMessageFormat": "chore({projectName}): release version ${version} [skip ci]"
       }
     },
     "github": {
