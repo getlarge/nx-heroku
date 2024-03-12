@@ -74,8 +74,8 @@ jobs:
         if: steps.has-coverage.outputs.files_exists == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: coverage
           path: coverage
+          name: coverage-${{ matrix.node-version }}
           retention-days: 5
 
     outputs:
@@ -104,7 +104,7 @@ jobs:
         if: needs.test.outputs.has-coverage == 'true'
         uses: actions/download-artifact@v4
         with:
-          name: coverage
+          name: coverage-20
           path: coverage
 
       - name: SonarCloud Scan
