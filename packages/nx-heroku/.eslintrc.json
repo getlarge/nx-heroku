@@ -20,6 +20,23 @@
       "rules": {
         "@nx/nx-plugin-checks": "error"
       }
+    },
+    {
+      "files": ["./package.json", "./project.json"],
+      "parser": "jsonc-eslint-parser",
+      "rules": {
+        "@nx/dependency-checks": [
+          "error",
+          {
+            "buildTargets": ["build"],
+            "checkMissingDependencies": true,
+            "checkObsoleteDependencies": true,
+            "checkVersionMismatches": true,
+            "includeTransitiveDependencies": true,
+            "ignoredDependencies": []
+          }
+        ]
+      }
     }
   ]
 }
