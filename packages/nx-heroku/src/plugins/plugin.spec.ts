@@ -11,7 +11,7 @@ jest.mock('node:fs', () => ({
   readFileSync: jest.fn(() => 'web: node dist/apps/proj'),
 }));
 
-describe('@nx/jest/plugin', () => {
+describe('@getlarge/nx-heroku', () => {
   const createNodesFunction = createNodes[1];
   const testProjectName = 'proj';
   let context: CreateNodesContext;

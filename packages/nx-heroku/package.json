@@ -3,6 +3,10 @@
   "version": "0.4.2",
   "main": "src/index.js",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/getlarge/nx-heroku.git"
+  },
   "generators": "./generators.json",
   "executors": "./executors.json",
   "dependencies": {
