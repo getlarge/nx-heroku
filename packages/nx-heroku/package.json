@@ -1,6 +1,6 @@
 {
-  "name": "@aloes/nx-heroku",
-  "version": "0.4.1",
+  "name": "@getlarge/nx-heroku",
+  "version": "0.1.0",
   "main": "src/index.js",
   "license": "MIT",
   "generators": "./generators.json",

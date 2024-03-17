@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/schema",
   "$id": "NxHeroku-deploy",
-  "title": "@aloes/nx-heroku:deploy target generator",
+  "title": "@getlarge/nx-heroku:deploy target generator",
   "type": "object",
   "properties": {
     "projectName": {

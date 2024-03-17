@@ -22,7 +22,7 @@ import {
   removeNetRcFile,
 } from '../../../packages/nx-heroku/src/executors/common/heroku';
 
-const PLUGIN_NAME = '@aloes/nx-heroku';
+const PLUGIN_NAME = '@getlarge/nx-heroku';
 const PLUGIN_PATH = 'dist/packages/nx-heroku';
 const E2E_PATH = 'e2e/nx-heroku-e2e';
 

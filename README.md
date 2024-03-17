@@ -25,10 +25,10 @@ To install the plugin, run the following command:
 
 ```bash
 # with npm
-npm install -D @aloes/nx-heroku
+npm install -D @getlarge/nx-heroku
 
 # or with yarn
-yarn add -D @aloes/nx-heroku
+yarn add -D @getlarge/nx-heroku
 ```
 
 ## Generate target
@@ -38,10 +38,10 @@ yarn add -D @aloes/nx-heroku
 To generate a target for your application, run the following command:
 
 ```bash
-npx nx generate @aloes/nx-heroku:deploy --projectName=my-app --org=your-heroku-team --appNamePrefix=your-app-prefix
+npx nx generate @getlarge/nx-heroku:deploy --projectName=my-app --org=your-heroku-team --appNamePrefix=your-app-prefix
 
 # or to be prompted for the project name, omit specifying it
-npx nx g @aloes/nx-heroku:deploy
+npx nx g @getlarge/nx-heroku:deploy
 
 ```
 
@@ -52,10 +52,10 @@ This will generate a `deploy` target in your `project.json` file.
 To generate a target for your application, run the following command:
 
 ```bash
-npx nx generate @aloes/nx-heroku:promote --projectName=my-app --org=your-heroku-team --appNamePrefix=your-app-prefix
+npx nx generate @getlarge/nx-heroku:promote --projectName=my-app --org=your-heroku-team --appNamePrefix=your-app-prefix
 
 # or to be prompted for the project name, omit specifying it
-npx nx g @aloes/nx-heroku:promote
+npx nx g @getlarge/nx-heroku:promote
 
 ```
 
@@ -65,36 +65,36 @@ This will generate a `promote` target in your `project.json` file.
 
 ### Deploy
 
-The [`nx-heroku:deploy`](./packages/nx-heroku/src//executors/deploy/executor.ts) executor allows to deploy an Nx application to a targeted Heroku app. The deployment will be done for each pipeline stage declared via the option `config` (default: ['development'])
+The [`nx-heroku:deploy`](./packages/nx-heroku/src//executors/deploy/executor.ts) executor allows the deployment of an Nx application to a targeted Heroku app. The deployment will be done for each pipeline stage declared via the option `config` (default: ['development'])
 
-You can have a look at the [schema](./packages/nx-heroku/src/executors/deploy/schema.json) of the executor to see all the options available.
+You can look at the executor [schema](./packages/nx-heroku/src/executors/deploy/schema.json) to see all the options available.
 
 When deploying an application, the following steps are executed:
 
-1. Set internal variables which are prefixed with HD to avoid conflicts with variables provided by the user (`variables` option)
+1. Set internal variables that are prefixed with HD to avoid conflicts with variables provided by the user (`variables` option)
 2. Authentification to Heroku via .netrc file
 3. Set default options (branch to current branch, environment to development, watchDelay to 0)
 4. Set the Heroku app name.
    The Heroku app will be named after the pattern described in [Conventions](#naming-conventions).
 5. Create project 'Procfile'
-6. Create static buildpack config (optional)
-7. Create 'Aptfile', to install extra Ubuntu dependencies before build (optional)
-8. Ensure remote is added (and that application created).
+6. Create static **buildpack** config (optional)
+7. Create **Aptfile**, to install extra Ubuntu dependencies before build (optional)
+8. Ensure the remote is added (and that the application is created).
 9. Merge `HD_` prefixed variables with the one provided in the options and set Heroku app `config vars`.
-   You can provide your own variables prefixed by `HD_`, they will be added (without the prefix) to the Heroku app config automatically.
+   You can provide your variables that will be available at build time. They should be prefixed by `HD_`, they will be added (without the prefix) to the Heroku app config automatically.
    The environment variables `HD_PROJECT_NAME`,`HD_PROJECT_ENV`, `HD_NODE_ENV` and `HD_PROCFILE` will automatically be defined based on the project name and environment being deployed.
    `PROCFILE` is required when using [multi-procfile buildpack](https://elements.heroku.com/buildpacks/heroku/heroku-buildpack-multi-procfile), it should be defined in each Heroku app to indicate the Procfile path for the given project.
 10. Cleanup and register buildpacks.
     Extra buildpacks can be provided by using `buildPacks` option, they will be installed in **the order they are provided in the array**.
-11. Ensure app is attached to a pipeline with a stage matching the environment provided in options
+11. Ensure the app is attached to a pipeline with a stage matching the environment provided in options
     If the Heroku app doesn't exist, it will be created and attach to an existing or new pipeline.
 12. Assign management member (optional)
 13. Register addons (optional)
 14. Register drain (optional)
 15. Register webhook (optional)
 16. Deploy (trigger build and release)
-17. Run healthcheck (optional)
-18. Rollback if healthcheck failed (optional)
+17. Run health check (optional)
+18. Rollback if health check failed (optional)
 
 ```mermaid
 sequenceDiagram
@@ -172,7 +172,7 @@ For the given example project config:
   "targets": {
     ...,
     "deploy": {
-      "executor": "@aloes/nx-heroku:deploy",
+      "executor": "@getlarge/nx-heroku:deploy",
       "options": {
         "appNamePrefix": "aloes",
         "procfile": "web: bin/start-nginx-solo",
