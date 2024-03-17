@@ -126,14 +126,14 @@ function buildHerokuTargets(
 
   const deployConfig: TargetConfiguration = {
     ...baseConfig,
-    executor: '@aloes/nx-heroku:deploy',
+    executor: '@getlarge/nx-heroku:deploy',
     options: {
       procfile,
     },
   };
   const promoteConfig: TargetConfiguration = {
     ...baseConfig,
-    executor: '@aloes/nx-heroku:promote',
+    executor: '@getlarge/nx-heroku:promote',
     options: {},
   };
 

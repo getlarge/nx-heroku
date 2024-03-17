@@ -15,7 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@aloes/nx-heroku": ["packages/nx-heroku/src/index.ts"]
+      "@getlarge/nx-heroku": ["packages/nx-heroku/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

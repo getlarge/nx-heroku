@@ -35,7 +35,7 @@ describe('nx-heroku deploy generator', () => {
     expect(config).toBeDefined();
     expect(config.targets).toHaveProperty('deploy');
     expect(config.targets.deploy).toEqual({
-      executor: '@aloes/nx-heroku:deploy',
+      executor: '@getlarge/nx-heroku:deploy',
       options: {
         org: 'test-org',
         apiKey: '${HEROKU_API_KEY}',

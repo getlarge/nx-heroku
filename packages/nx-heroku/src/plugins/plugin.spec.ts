@@ -47,7 +47,7 @@ describe('@nx/jest/plugin', () => {
         "targets": {
           "deploy-me": {
             "cache": false,
-            "executor": "@aloes/nx-heroku:deploy",
+            "executor": "@getlarge/nx-heroku:deploy",
             "inputs": [
               "default",
               "^production",
@@ -58,7 +58,7 @@ describe('@nx/jest/plugin', () => {
           },
           "promote-me": {
             "cache": false,
-            "executor": "@aloes/nx-heroku:promote",
+            "executor": "@getlarge/nx-heroku:promote",
             "inputs": [
               "default",
               "^production",

@@ -1,5 +1,5 @@
 {
-  "name": "@aloes/nx-heroku",
+  "name": "@getlarge/nx-heroku",
   "version": "0.4.1",
   "main": "src/index.js",
   "license": "MIT",

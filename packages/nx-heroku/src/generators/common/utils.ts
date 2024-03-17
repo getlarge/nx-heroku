@@ -38,7 +38,7 @@ function createTarget(
 ): TargetConfiguration {
   const targetOptions = createTargetOptions(options);
   return {
-    executor: `@aloes/nx-heroku:${targetName}`,
+    executor: `@getlarge/nx-heroku:${targetName}`,
     ...(Object.keys(targetOptions).length > 0
       ? { options: targetOptions }
       : {}),

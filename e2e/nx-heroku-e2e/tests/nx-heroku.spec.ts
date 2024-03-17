@@ -34,7 +34,7 @@ describe('nx-heroku e2e', () => {
       const { projectName, getProjectConfig } = await createProject();
       //
       await expect(
-        runNxCommandAsync(`generate @aloes/nx-heroku:deploy ${projectName}`)
+        runNxCommandAsync(`generate @getlarge/nx-heroku:deploy ${projectName}`)
       ).rejects.toThrowError();
       const project = getProjectConfig();
       expect(project.targets?.deploy).toBeUndefined();
@@ -44,7 +44,7 @@ describe('nx-heroku e2e', () => {
       const { projectName, getProjectConfig } = await createProject();
       //
       await runNxCommandAsync(
-        `generate @aloes/nx-heroku:deploy ${projectName} --org ${org}`
+        `generate @getlarge/nx-heroku:deploy ${projectName} --org ${org}`
       );
       const project = getProjectConfig();
       expect(project.targets?.deploy?.options?.org).toEqual(org);
@@ -55,7 +55,7 @@ describe('nx-heroku e2e', () => {
       //
       //? the single quotes does not prevent parameter expansion
       await runNxCommandAsync(
-        `generate @aloes/nx-heroku:deploy ${projectName} --org ${org} --apiKey '${HEROKU_API_KEY}' --email '${HEROKU_EMAIL}'`
+        `generate @getlarge/nx-heroku:deploy ${projectName} --org ${org} --apiKey '${HEROKU_API_KEY}' --email '${HEROKU_EMAIL}'`
       );
       const project = getProjectConfig();
       expect(project.targets?.deploy?.options?.apiKey).toEqual(HEROKU_API_KEY);
@@ -72,7 +72,7 @@ describe('nx-heroku e2e', () => {
       process.env.HEROKU_EMAIL = process.env.HEROKU_EMAIL_PREV;
       // configure the target
       await runNxCommandAsync(
-        `generate @aloes/nx-heroku:deploy ${projectName} --appNamePrefix=aloes`
+        `generate @getlarge/nx-heroku:deploy ${projectName} --appNamePrefix=aloes`
       );
       const project = getProjectConfig();
       project.targets!.deploy.options = {
@@ -126,7 +126,7 @@ describe('nx-heroku e2e', () => {
       // TODO: first deploy then promote, or use existing app ? would be faster but goes against the principle of one project per test
 
       await runNxCommandAsync(
-        `generate @aloes/nx-heroku:promote ${projectName} --apiKey='${HEROKU_API_KEY}' --email='${HEROKU_EMAIL}' --appNamePrefix=aloes`
+        `generate @getlarge/nx-heroku:promote ${projectName} --apiKey='${HEROKU_API_KEY}' --email='${HEROKU_EMAIL}' --appNamePrefix=aloes`
       );
       const project = getProjectConfig();
       project.targets!.deploy.options = {

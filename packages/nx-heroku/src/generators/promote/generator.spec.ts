@@ -34,7 +34,7 @@ describe('nx-heroku promote generator', () => {
     expect(config).toBeDefined();
     expect(config.targets).toHaveProperty('promote');
     expect(config.targets.promote).toEqual({
-      executor: '@aloes/nx-heroku:promote',
+      executor: '@getlarge/nx-heroku:promote',
       options: {
         org: 'test-org',
       },

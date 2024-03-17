@@ -2,10 +2,14 @@
   "name": "nx-heroku",
   "version": "0.0.0",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/getlarge/nx-heroku.git",
+    "directory": "packages/nx-heroku"
+  },
   "scripts": {
     "prepare": "husky install"
   },
-  "private": true,
   "devDependencies": {
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.0.3",
