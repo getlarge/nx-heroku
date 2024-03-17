@@ -2,6 +2,8 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.4.2](https://github.com/getlarge/nx-heroku/compare/nx-heroku-0.4.1...nx-heroku-0.4.2) (2024-03-17)
+
 ## [0.4.1](https://github.com/getlarge/nx-heroku/compare/nx-heroku-0.4.0...nx-heroku-0.4.1) (2024-03-13)
 
 ### Bug Fixes
