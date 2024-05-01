@@ -62,7 +62,45 @@ describe('nx-heroku e2e', () => {
       expect(project.targets?.deploy?.options?.email).toEqual(HEROKU_EMAIL);
     }, 120000);
 
-    it('should create target and deploy the app successfully', async () => {
+    it('should create target and deploy an app with simple configuration successfully', async () => {
+      const { projectName, getProjectConfig, updateProjectConfig } =
+        await createProject();
+
+      projects.push(projectName);
+      // restore the environment variables to be expanded by the executor
+      process.env.HEROKU_API_KEY = process.env.HEROKU_API_KEY_PREV;
+      process.env.HEROKU_EMAIL = process.env.HEROKU_EMAIL_PREV;
+      // configure the target
+      await runNxCommandAsync(
+        `generate @getlarge/nx-heroku:deploy ${projectName} --appNamePrefix=aloes`
+      );
+      const project = getProjectConfig();
+      project.targets!.deploy.options = {
+        ...(project.targets!.deploy.options || {}),
+        procfile: `web: node dist/apps/${projectName}/main.js`,
+        buildPacks: ['heroku/nodejs'],
+        apiKey: HEROKU_API_KEY,
+        email: HEROKU_EMAIL,
+        variables: {
+          // used in postbuild.js
+          PROJECT_NAME: projectName,
+        },
+        useForce: true,
+        serviceUser: 'edouard@aloes.io',
+        debug: true,
+      };
+      updateProjectConfig(project);
+      prepareProjectForDeployment(projectName);
+      // run the target
+      const { stderr, stdout } = await runNxCommandAsync(
+        `deploy ${projectName} --verbose`,
+        { silenceError: true }
+      );
+      console.warn(stdout, stderr);
+      expect(stdout).toContain('Deployment successful.');
+    }, 100000);
+
+    it('should create target and deploy the app with complex configuration successfully', async () => {
       const { projectName, getProjectConfig, updateProjectConfig } =
         await createProject();
 
