@@ -62,15 +62,7 @@ export async function addWebhook(options: {
     secret?: string;
   };
 }): Promise<'created' | 'updated' | 'found'> {
-  const {
-    appName,
-    webhook = {
-      url: '',
-      include: ['api:build', 'api:release', 'dyno'],
-      level: 'sync',
-      secret: '',
-    },
-  } = options;
+  const { appName, webhook = null } = options;
   if (!webhook?.url || !isURL(webhook.url)) return;
   const { url, level, secret } = webhook;
   const include = webhook.include.join(',');
