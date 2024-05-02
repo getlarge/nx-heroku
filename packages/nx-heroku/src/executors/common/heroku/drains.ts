@@ -34,7 +34,7 @@ export async function addDrain(options: {
     password?: string;
   };
 }): Promise<'found' | 'created'> {
-  const { appName, drain = { url: '' } } = options;
+  const { appName, drain = null } = options;
   if (!drain?.url || !isURL(drain.url)) return;
   let url: string = drain.url;
   if (drain.user && drain.password) {

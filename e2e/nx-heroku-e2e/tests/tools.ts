@@ -1,6 +1,7 @@
 import {
   NxJsonConfiguration,
   ProjectConfiguration,
+  logger,
   serializeJson,
 } from '@nx/devkit';
 import {
@@ -169,9 +170,18 @@ function patchPackageJson() {
 }
 
 function commitPackageJson() {
-  execSync(
-    `git add package*.json && git commit -m "chore: update package*.json" -n --no-gpg-sign`
-  );
+  try {
+    execSync(
+      `git add package*.json && git commit -m "chore: update package*.json" -n --no-gpg-sign`
+    );
+  } catch (e) {
+    if (e['stdout']?.toString().includes('no changes added to commit')) {
+      return;
+    } else {
+      logger.error(e);
+      throw e;
+    }
+  }
 }
 
 function setPackageJsonForHeroku() {

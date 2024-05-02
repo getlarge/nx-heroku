@@ -172,4 +172,21 @@ describe('Deploy Executor', () => {
     expect(herokuDeployService.run).toBeCalled();
     expect(output.success).toBe(false);
   });
+
+  it('can run with the minimum required options and return true', async () => {
+    const opts: DeployExecutorSchema = {
+      config: ['development'],
+      org: 'my-org',
+      buildPacks: [],
+      apiKey: 'heroku-user-api-key',
+      email: 'heroku-user-email',
+      watchDelay: 0,
+    };
+    herokuDeployService.run = jest.fn();
+    //
+    const output = await executor(opts, context);
+    //
+    expect(herokuDeployService.run).toBeCalled();
+    expect(output.success).toBe(true);
+  });
 });
