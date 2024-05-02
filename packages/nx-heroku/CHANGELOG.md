@@ -2,6 +2,12 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.4.3](https://github.com/getlarge/nx-heroku/compare/nx-heroku-0.4.2...nx-heroku-0.4.3) (2024-05-02)
+
+### Bug Fixes
+
+- **nx-heroku:** disable nested required properties ([b0eb2ff](https://github.com/getlarge/nx-heroku/commit/b0eb2ff98d1815574b9544aaedf0474f5b4fdaf2))
+
 ## [0.4.2](https://github.com/getlarge/nx-heroku/compare/nx-heroku-0.4.1...nx-heroku-0.4.2) (2024-03-17)
 
 ## [0.4.1](https://github.com/getlarge/nx-heroku/compare/nx-heroku-0.4.0...nx-heroku-0.4.1) (2024-03-13)
